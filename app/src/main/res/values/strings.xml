@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">CinemaBookingApp</string>
+    <string name="title_cinephile">CINEPHILE</string>
+    <string name="welcome_back">Chào mừng quay trở lại</string>
+    <string name="subtitle_signin">Đăng nhập vào phòng chiếu riêng của bạn</string>
+    <string name="hint_email">Địa chỉ Email</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="btn_login">ĐĂNG NHẬP</string>
+    <string name="txt_or">HOẶC</string>
+    <string name="btn_google">Tiếp tục với Google</string>
+    <string name="msg_no_account">Chưa có tài khoản? </string>
+    <string name="btn_register">Đăng ký</string>
+
+    <string name="desc_app_logo">Logo ứng dụng</string>
+    <string name="desc_google_icon">Logo Google</string>
+    <string name="header_welcome">Hello, Nhan 👋</string>
+    <string name="header_subtitle">Find your favorite movie</string>
+
+    <string name="search_hint">Search movies...</string>
+
+    <string name="banner_title">Interstellar 2</string>
+    <string name="banner_info">Sci-Fi • 2h 45m</string>
+    <string name="btn_book_now">Book Now</string>
+
+    <string name="category_action">Action</string>
+    <string name="category_horror">Horror</string>
+    <string name="category_anime">Anime</string>
+
+    <string name="section_now_showing">Now Showing</string>
+    <string name="btn_see_all">See All</string>
+
+    <string name="movie_1_title">Shadow Realm</string>
+    <string name="movie_1_info">Thriller • 2h 10m</string>
+    <string name="movie_1_rating">⭐ 4.8</string>
+
+    <string name="movie_2_title">Neon Pulse</string>
+    <string name="movie_2_info">Sci-Fi • 1h 55m</string>
+    <string name="movie_2_rating">⭐ 4.5</string>
+</resources>

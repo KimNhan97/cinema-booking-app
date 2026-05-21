@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_background">#0b0f19</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_muted">#9CA3AF</color>
+    <color name="brand_pink">#E879F9</color> <color name="input_border">#374151</color>
+    <color name="input_bg">#1F2937</color>
+
+    <color name="google_btn_bg">#111827</color>
+    <color name="google_btn_border">#374151</color>
+
+    <color name="gradient_start">#E11D48</color>
+    <color name="gradient_end">#DB2777</color>
+</resources>
