@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">CinemaBookingApp</string>
-    <string name="title_cinephile">CINEPHILE</string>
+    <string name="title_cinemago">CinemaGo</string>
     <string name="welcome_back">Chào mừng quay trở lại</string>
     <string name="subtitle_signin">Đăng nhập vào phòng chiếu riêng của bạn</string>
     <string name="hint_email">Địa chỉ Email</string>
@@ -17,24 +17,38 @@
     <string name="header_welcome">Hello, Nhan 👋</string>
     <string name="header_subtitle">Find your favorite movie</string>
 
-    <string name="search_hint">Search movies...</string>
+    <string name="search_hint">Tìm kiếm phim...</string>
 
     <string name="banner_title">Interstellar 2</string>
-    <string name="banner_info">Sci-Fi • 2h 45m</string>
-    <string name="btn_book_now">Book Now</string>
+    <string name="banner_info">Khoa học viễn tưởng • 2 giờ 45 phút</string>
+    <string name="btn_book_now">Đặt Vé Ngay -></string>
 
-    <string name="category_action">Action</string>
-    <string name="category_horror">Horror</string>
+    <string name="category_action">Hành Động</string>
+    <string name="category_horror">Kinh Dị</string>
     <string name="category_anime">Anime</string>
 
-    <string name="section_now_showing">Now Showing</string>
-    <string name="btn_see_all">See All</string>
+    <string name="section_now_showing">Phim Đang Chiếu</string>
+    <string name="btn_see_all">Xem Tất Cả</string>
 
     <string name="movie_1_title">Shadow Realm</string>
-    <string name="movie_1_info">Thriller • 2h 10m</string>
+    <string name="movie_1_info">Giật gân • 2 giờ 10 phút</string>
     <string name="movie_1_rating">⭐ 4.8</string>
 
     <string name="movie_2_title">Neon Pulse</string>
-    <string name="movie_2_info">Sci-Fi • 1h 55m</string>
+    <string name="movie_2_info">Khoa học viễn tưởng • 1 giờ 55 phút</string>
     <string name="movie_2_rating">⭐ 4.5</string>
+
+    <string name="title_create_account">Tạo Tài Khoản</string>
+    <string name="subtitle_register">Đặt vé phim yêu thích của bạn dễ dàng</string>
+    <string name="hint_full_name">Họ Và Tên</string>
+
+    <string name="hint_confirm_password">Xác Nhận Mật Khẩu</string>
+    <string name="text_terms">Tôi đồng ý với Điều Khoản &amp; Điều Kiện</string>
+    <string name="btn_create_account">TẠO TÀI KHOẢN</string>
+    <string name="text_or">HOẶC TIẾP TỤC VỚI</string>
+
+    <string name="text_already_have_account">Đã có tài khoản? Đăng Nhập</string>
+    <string name="desc_logo">Logo Cinephile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

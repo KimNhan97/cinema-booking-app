@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/login"
-    android:background="@color/bg_background"
+    android:background="@drawable/bg_cinematic_gradient"
+
     tools:context=".LoginActivity">
 
     <ScrollView
@@ -31,21 +32,21 @@
                 android:layout_marginBottom="32dp">
 
                 <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_movie"
-                    app:tint="@color/brand_pink"
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:src="@drawable/ic_play_cinema"
+                    android:background="@color/bg_background"
                     android:contentDescription="@string/desc_app_logo"
                     android:layout_marginEnd="8dp"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/title_cinephile"
+                    android:letterSpacing="0.05"
+                    android:text="@string/title_cinemago"
                     android:textColor="@color/text_white"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05"/>
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <TextView
@@ -90,7 +91,7 @@
                         android:background="@drawable/input_box_bg"
                         android:paddingStart="48dp"
                         android:paddingEnd="16dp"
-                        android:textSize="15sp"/>
+                        android:textSize="17sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -116,7 +117,7 @@
                         android:background="@drawable/input_box_bg"
                         android:paddingStart="48dp"
                         android:paddingEnd="16dp"
-                        android:textSize="15sp"/>
+                        android:textSize="17sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -183,11 +184,11 @@
                     android:foreground="?attr/selectableItemBackground">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@android:drawable/ic_menu_info_details"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="12dp"
                         android:contentDescription="@string/desc_google_icon"
-                        android:layout_marginEnd="12dp"/>
+                        android:src="@drawable/ic_google"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -195,7 +196,7 @@
                         android:text="@string/btn_google"
                         android:textColor="@color/text_white"
                         android:textStyle="bold"
-                        android:textSize="14sp"/>
+                        android:textSize="16sp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -213,6 +214,7 @@
                         android:textSize="14sp"/>
 
                     <TextView
+                        android:id="@+id/tvRegister"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
@@ -227,4 +229,5 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

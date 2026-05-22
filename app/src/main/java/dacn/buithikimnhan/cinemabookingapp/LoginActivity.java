@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -16,6 +17,7 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText edtEmail, edtPassword;
     AppCompatButton btnLogin;
+    TextView tvRegister;
 
     FirebaseAuth mAuth;
 
@@ -24,16 +26,29 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Ánh xạ view
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         btnLogin = findViewById(R.id.btn_login);
-
-        // Firebase Auth
+        tvRegister = findViewById(R.id.tvRegister);
+        // b1.Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Click login
+        // b2.Click login
         btnLogin.setOnClickListener(v -> loginUser());
+        tvRegister.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    RegisterActivity.class
+            );
+
+            startActivity(intent);
+
+            overridePendingTransition(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+            );
+        });
     }
 
     private void loginUser() {
@@ -41,33 +56,33 @@ public class LoginActivity extends AppCompatActivity {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        // Validate Email
+        // b3.Validate Email
         if (TextUtils.isEmpty(email)) {
-            edtEmail.setError("Please enter email");
+            edtEmail.setError("Vui lòng nhập email");
             edtEmail.requestFocus();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            edtEmail.setError("Invalid email");
+            edtEmail.setError("Định dạng email không hợp lệ");
             edtEmail.requestFocus();
             return;
         }
 
-        // Validate Password
+        // b4.Validate Password
         if (TextUtils.isEmpty(password)) {
-            edtPassword.setError("Please enter password");
+            edtPassword.setError("Vui lòng nhập mật khẩu");
             edtPassword.requestFocus();
             return;
         }
 
         if (password.length() < 6) {
-            edtPassword.setError("Password must be at least 6 characters");
+            edtPassword.setError("Mật khẩu phải có ít nhất 6 ký tự");
             edtPassword.requestFocus();
             return;
         }
 
-        // Firebase Login
+        // b5.Firebase Login
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
 
@@ -75,11 +90,11 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(
                                 LoginActivity.this,
-                                "Đăng Nhập Thành Công ",
+                                "Đăng Nhập Thành Công",
                                 Toast.LENGTH_SHORT
                         ).show();
 
-                        // Chuyển MainActivity
+
                         Intent intent = new Intent(
                                 LoginActivity.this,
                                 MainActivity.class
@@ -92,8 +107,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(
                                 LoginActivity.this,
-                                "Đăng nhập thất bại: "
-                                        + task.getException().getMessage(),
+                                "Sai tài khoản hoặc mật khẩu. Vui lòng thử lại!",
                                 Toast.LENGTH_LONG
                         ).show();
                     }

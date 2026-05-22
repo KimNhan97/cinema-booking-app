@@ -35,10 +35,12 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-firestore:25.1.1")
     implementation("com.google.firebase:firebase-auth:23.1.0")
-    implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.airbnb.android:lottie:6.4.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
