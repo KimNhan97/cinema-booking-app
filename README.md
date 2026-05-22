@@ -1,8 +1,18 @@
 # cinema-booking-app
-<img width="593" height="1246" alt="image" src="https://github.com/user-attachments/assets/71089932-a225-4ae6-8107-c164f2d5f74a" />
+<img width="626" height="1350" alt="image" src="https://github.com/user-attachments/assets/10eafb3f-8a82-47c8-a773-74daff2a6ad2" />
 # Màn hình đăng nhập:
-<img width="602" height="1296" alt="image" src="https://github.com/user-attachments/assets/d12a9102-d4fe-475a-952b-004ae8e4a313" />
+<img width="612" height="1350" alt="image" src="https://github.com/user-attachments/assets/221a8c30-8305-4bb3-901c-0832ed114192" />
 # Đăng nhập thất bại
 <img width="576" height="1287" alt="image" src="https://github.com/user-attachments/assets/f79ca55f-d606-465e-adee-9ab31fe4c8ae" />
 # Đăng nhập thành công 
-<img width="602" height="1294" alt="image" src="https://github.com/user-attachments/assets/3d49df5f-4631-41f2-addb-4b53893672ba" />
+<img width="625" height="1350" alt="image" src="https://github.com/user-attachments/assets/114d5202-392e-4751-9b36-fffb9ef138d7" />
+Đăng ký thành công
+<img width="630" height="1340" alt="image" src="https://github.com/user-attachments/assets/e877dacb-7d44-491f-9026-840fb5ee01ce" />
+<img width="626" height="1348" alt="image" src="https://github.com/user-attachments/assets/6c988a03-e285-4d5e-b9e5-c259336fa64b" />
+Màn hình home của app_ch hoàn thiện:
+<img width="630" height="1350" alt="image" src="https://github.com/user-attachments/assets/eaf9342a-ec2e-4d3a-93a3-00341d01df42" />
+<img width="633" height="1350" alt="image" src="https://github.com/user-attachments/assets/83fba5cd-8c8b-437b-a752-74ccecae8aa4" />
+
+
+
+
