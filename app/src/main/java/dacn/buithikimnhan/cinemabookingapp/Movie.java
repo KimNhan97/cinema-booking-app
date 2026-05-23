@@ -1,9 +1,13 @@
 package dacn.buithikimnhan.cinemabookingapp;
 
-public class Movie {
+import java.io.Serializable;
+
+public class Movie implements Serializable {
 
 
-     String movieId;
+
+
+    String movieId;
      String title;
      String description;
      String genre;
@@ -74,5 +78,8 @@ public class Movie {
 
     public String getStatus() {
         return status;
+    }
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
     }
 }

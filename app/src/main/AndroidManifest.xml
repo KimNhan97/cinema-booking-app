@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CinemaGo.Splash">
         <activity
+            android:name=".SeatSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".MovieDetailActivity"
             android:exported="false" />
         <activity

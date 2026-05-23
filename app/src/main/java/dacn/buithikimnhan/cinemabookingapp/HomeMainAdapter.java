@@ -7,7 +7,9 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,7 +34,9 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private final Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
 
-    public HomeMainAdapter(Context context, List<Movie> bannerMovies, List<Movie> gridMovies) {
+    public HomeMainAdapter(Context context,
+                           List<Movie> bannerMovies,
+                           List<Movie> gridMovies) {
         this.context = context;
         this.bannerMovies = bannerMovies;
         this.gridMovies = gridMovies;
@@ -40,7 +44,6 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        // chia vùng
         return position == 0 ? TYPE_HEADER : TYPE_MOVIE;
     }
 
@@ -48,20 +51,24 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_home_header, parent, false);
+            View view = LayoutInflater.from(context)
+                    .inflate(R.layout.item_home_header, parent, false);
             return new HeaderViewHolder(view);
         } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_movie_grid, parent, false);
+            View view = LayoutInflater.from(context)
+                    .inflate(R.layout.item_movie_grid, parent, false);
             return new MovieViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        // ================= HEADER =================
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
 
-            // Đổ dữ liệu User
+            // ================= USER INFO =================
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
                 headerHolder.tvUserEmail.setText(user.getEmail());
@@ -72,16 +79,24 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
 
+            // Tìm kiếm
+            headerHolder.layoutSearch.setOnClickListener(v -> {
+                Intent intent = new Intent(context, SearchActivity.class);
+                context.startActivity(intent);
+            });
+
             // Banner
             if (headerHolder.bannerViewPager.getAdapter() == null) {
                 BannerAdapter bannerAdapter = new BannerAdapter(context, bannerMovies);
                 headerHolder.bannerViewPager.setAdapter(bannerAdapter);
 
-                // tự động chuyển slide ảnh
+                // Chuyển động slider tự động
                 sliderRunnable = () -> {
                     if (bannerMovies.isEmpty()) return;
                     int nextItem = headerHolder.bannerViewPager.getCurrentItem() + 1;
-                    if (nextItem >= bannerMovies.size()) nextItem = 0;
+                    if (nextItem >= bannerMovies.size()) {
+                        nextItem = 0;
+                    }
                     headerHolder.bannerViewPager.setCurrentItem(nextItem, true);
                     sliderHandler.postDelayed(sliderRunnable, 3000);
                 };
@@ -93,25 +108,31 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             } else {
                 headerHolder.bannerViewPager.getAdapter().notifyDataSetChanged();
             }
+        }
 
-        } else if (holder instanceof MovieViewHolder) {
+        // ================= MOVIE GRID (DANH SÁCH PHIM) =================
+        else if (holder instanceof MovieViewHolder) {
+            // Lấy đúng vị trí phim trong danh sách (trừ đi 1 phần tử Header ở vị trí 0)
             Movie movie = gridMovies.get(position - 1);
             MovieViewHolder movieHolder = (MovieViewHolder) holder;
 
             movieHolder.txtMovieTitle.setText(movie.getTitle());
             movieHolder.txtMovieSubtitle.setText(movie.getGenre() + " • " + movie.getDuration() + " phút");
 
-            // Load ảnh poster phim bằng Glide( chưa có)
+            // Tải hình ảnh Poster/Banner phim bằng thư viện Glide
             Glide.with(context)
                     .load(movie.getBannerUrl())
                     .placeholder(R.drawable.movie1)
                     .error(R.drawable.movie1)
                     .into(movieHolder.imgMoviePoster);
 
-            // đặt vé phim
+            // ================= BẮT SỰ KIỆN CLICK VÀO PHIM =================
             movieHolder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, MovieDetailActivity.class);
-                intent.putExtra("movieId", movie.getMovieId());
+
+                // Gửi nguyên Object Movie sang màn hình chi tiết (Yêu cầu lớp Movie phải "implements Serializable")
+                intent.putExtra("CHOSEN_MOVIE", movie);
+
                 context.startActivity(intent);
             });
         }
@@ -119,28 +140,31 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        // Tổng số ô = 1 ô Header + số lượng phim đang chiếu
         return 1 + (gridMovies != null ? gridMovies.size() : 0);
     }
 
     public void stopSlider() {
-        if (sliderRunnable != null) sliderHandler.removeCallbacks(sliderRunnable);
+        if (sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
+        }
     }
 
-    // view của header
+    // ================= HEADER VIEW HOLDER =================
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvUserEmail;
         ViewPager2 bannerViewPager;
+        EditText layoutSearch;
 
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUserName = itemView.findViewById(R.id.tvUserName);
             tvUserEmail = itemView.findViewById(R.id.tvUserEmail);
             bannerViewPager = itemView.findViewById(R.id.bannerViewPager);
+            layoutSearch = itemView.findViewById(R.id.layoutSearch);
         }
     }
 
-    // view của ds movie
+    // ================= MOVIE VIEW HOLDER =================
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView imgMoviePoster;
         TextView txtMovieTitle, txtMovieSubtitle;

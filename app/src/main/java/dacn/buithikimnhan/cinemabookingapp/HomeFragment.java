@@ -59,6 +59,7 @@ public class HomeFragment extends Fragment {
         loadMoviesData();
 
         return view;
+
     }
 
     private void loadMoviesData() {
@@ -71,7 +72,12 @@ public class HomeFragment extends Fragment {
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Movie movie = document.toObject(Movie.class);
+
                             if (movie != null) {
+
+                                movie.setMovieId(document.getId());
+
+
                                 String status = movie.getStatus();
 
                                 // Phim đẩy lên Banner tự động chạy

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp"> <TextView
+    android:id="@+id/tvTimeRange"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@drawable/bg_time_slot"
+    android:gravity="center"
+    android:text="00:00 - 00:00"
+    android:textColor="#333333"
+    android:textSize="14sp"
+    android:textStyle="normal"
+    android:focusable="false"
+    android:clickable="false" />
+
+</LinearLayout>

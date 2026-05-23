@@ -89,7 +89,9 @@
                         android:textColor="@color/text_white"
                         android:textColorHint="@color/text_muted"
                         android:background="@drawable/input_box_bg"
-                        android:paddingStart="48dp"
+
+                        android:paddingStart="36dp"
+
                         android:paddingEnd="16dp"
                         android:textSize="17sp"/>
                 </com.google.android.material.textfield.TextInputLayout>
