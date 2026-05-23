@@ -1,5 +1,6 @@
 package dacn.buithikimnhan.cinemabookingapp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,10 +34,9 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
     private List<Seat> seatList = new ArrayList<>();
     private SeatAdapter seatAdapter;
-
     private FirebaseFirestore db;
 
-    // Lưu thông tin nhận từ Intent
+    // Thông tin nhận từ Intent (Gán mặc định phòng hờ)
     private String showtimeId = "show_001";
     private String movieTitle = "";
     private String showtimeDetails = "";
@@ -51,15 +51,13 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // 1. Đọc dữ liệu động được truyền từ màn hình MovieDetailActivity sang
+        // 1. Đọc dữ liệu động được truyền từ màn hình trước sang
         if (getIntent().hasExtra("SHOWTIME_ID")) {
             showtimeId = getIntent().getStringExtra("SHOWTIME_ID");
         }
-        // Nhận tiêu đề phim động
         if (getIntent().hasExtra("MOVIE_TITLE")) {
             movieTitle = getIntent().getStringExtra("MOVIE_TITLE");
         }
-        // Nhận chuỗi ngày giờ chiếu chi tiết động (VD: "20:15~22:35 | Thứ 7, 23/05/2026")
         if (getIntent().hasExtra("SHOWTIME_INFO")) {
             showtimeDetails = getIntent().getStringExtra("SHOWTIME_INFO");
         }
@@ -85,21 +83,50 @@ public class SeatSelectionActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         btnContinue.setOnClickListener(v -> {
+            // 1. Kiểm tra nếu chưa chọn ghế thì báo lỗi và dừng lại
             if (selectedSeatsList.isEmpty()) {
                 Toast.makeText(this, "Vui lòng chọn ít nhất 1 ghế!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            updateSeatsToFirebase();
+
+            // 2. Nếu đã chọn ghế, hiển thị hộp thoại xác nhận độ tuổi chuẩn mẫu Galaxy Cinema
+            showAgeConfirmationDialog();
         });
     }
+    // ================= HIỂN THỊ HỘP THOẠI XÁC NHẬN ĐỘ TUỔI =================
+    private void showAgeConfirmationDialog() {
+        // Tạo trình dựng hộp thoại giao diện bo góc tiêu chuẩn hệ thống
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 
+        // Thiết lập tiêu đề và nội dung văn bản giống ảnh mẫu 100%
+        builder.setTitle("Xác nhận");
+        builder.setMessage("Phim dành cho mọi độ tuổi. Tôi xác nhận rạp phim không được phép phục vụ khách hàng dưới 13 tuổi cho các suất chiếu kết thúc từ 22:00 và dưới 16 tuổi cho các suất chiếu kết thúc từ 23:00. Tôi đồng ý cung cấp giấy tờ tùy thân để xác thực độ tuổi người xem. Rạp sẽ không hoàn tiền nếu người xem không đáp ứng đủ điều kiện.");
+
+        // Cấu hình nút hành động "Xác nhận" (Bấm vào mới tiến hành lưu lên Firebase)
+        builder.setPositiveButton("Xác nhận", (dialog, which) -> {
+            // Gọi hàm đẩy dữ liệu cập nhật trạng thái ghế lên Cloud Firestore
+            navigateToPaymentInfo();
+        });
+
+        // Cấu hình nút hành động "Hủy" (Bấm vào chỉ đóng hộp thoại, giữ nguyên màn hình chọn ghế)
+        builder.setNegativeButton("Hủy", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        // Khởi tạo thực thể và tùy biến màu sắc chữ của các nút bấm cho đồng bộ giao diện
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Thay đổi màu sắc của nút để làm nổi bật hành động (Màu hồng/đỏ chủ đạo)
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#D81B60"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#757575"));
+    }
     private void setupRecyclerView() {
         seatAdapter = new SeatAdapter(seatList);
         rvSeatMap.setLayoutManager(new GridLayoutManager(this, 9)); // Luôn cố định lưới 9 cột
         rvSeatMap.setAdapter(seatAdapter);
     }
 
-    // Gán dữ liệu phim động lên giao diện góc dưới rạp
     private void displayMovieInformation() {
         if (movieTitle != null && !movieTitle.isEmpty()) {
             tvMovieTitle.setText(movieTitle);
@@ -117,22 +144,29 @@ public class SeatSelectionActivity extends AppCompatActivity {
     }
 
     // ================= THUẬT TOÁN ĐỔ SƠ ĐỒ GHẾ CHUẨN TỪ A -> J =================
+
     private void loadSeatsFromFirestore() {
         db.collection("showtimes")
                 .document(showtimeId)
                 .collection("seats")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    System.out.println("DEBUG_LOG: Kết nối thành công! Lấy được " + queryDocumentSnapshots.size() + " ghế từ document: " + showtimeId);
+
                     seatList.clear();
 
                     // Dùng HashMap để gom ghế từ Firebase theo từ khóa Tên Ghế (VD: "A1" -> Đối tượng Seat)
                     Map<String, Seat> firebaseSeatsMap = new HashMap<>();
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        Seat seat = doc.toObject(Seat.class);
-                        if (seat != null) {
-                            seat.setSeatName(doc.getId()); // ID Document trên Firestore là "A1", "A2"...
-                            firebaseSeatsMap.put(doc.getId(), seat);
+                        try {
+                            Seat seat = doc.toObject(Seat.class);
+                            if (seat != null) {
+                                seat.setSeatName(doc.getId()); // ID Document trên Firestore là "A1", "A2"...
+                                firebaseSeatsMap.put(doc.getId(), seat);
+                            }
+                        } catch (Exception e) {
+                            System.out.println("DEBUG_LOG: Lỗi ép kiểu class Seat tại document " + doc.getId() + " - " + e.getMessage());
                         }
                     }
 
@@ -163,48 +197,34 @@ public class SeatSelectionActivity extends AppCompatActivity {
                     seatAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi kết nối sơ đồ ghế: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-        db.collection("showtimes")
-                .document(showtimeId)
-                .collection("seats")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // CHÈN DÒNG NÀY VÀO ĐỂ KIỂM TRA:
-                    System.out.println("DEBUG_LOG: Đã lấy thành công " + queryDocumentSnapshots.size() + " ghế từ Firebase!");
-
-                    seatList.clear();
-                    // ... (giữ nguyên code cũ bên dưới) ...
-
-                    seatAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    // CHÈN DÒNG NÀY VÀO ĐỂ BẮT LỖI:
                     System.out.println("DEBUG_LOG: Thất bại khi kết nối Firebase! Lỗi: " + e.getMessage());
                     Toast.makeText(this, "Lỗi kết nối sơ đồ ghế: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     // ================= CẬP NHẬT TRẠNG THÁI ĐẶT GHẾ LÊN CLOUD =================
-    private void updateSeatsToFirebase() {
-        WriteBatch batch = db.batch();
-
-        for (Seat seat : selectedSeatsList) {
-            batch.update(db.collection("showtimes")
-                            .document(showtimeId)
-                            .collection("seats")
-                            .document(seat.getSeatName()),
-                    "status", "booked");
+    // Đổi tên hàm thành chuyển trang để đúng với bản chất logic mới
+    private void navigateToPaymentInfo() {
+        // Gom tên các ghế đã chọn thành chuỗi dạng: "J06, J05"
+        StringBuilder seatsBuilder = new StringBuilder();
+        for (int i = 0; i < selectedSeatsList.size(); i++) {
+            seatsBuilder.append(selectedSeatsList.get(i).getSeatName());
+            if (i < selectedSeatsList.size() - 1) {
+                seatsBuilder.append(", ");
+            }
         }
 
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Đặt vé và chọn ghế thành công!", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi đồng bộ dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        // Tạo chuỗi danh sách để truyền danh sách đối tượng sang nếu cần xử lý vòng lặp lẻ sau này
+        Intent intent = new Intent(SeatSelectionActivity.this, PaymentInfoActivity.class);
+        intent.putExtra("SHOWTIME_ID", showtimeId); // Rất quan trọng để trang sau biết lưu vào đâu
+        intent.putExtra("MOVIE_TITLE", movieTitle != null && !movieTitle.isEmpty() ? movieTitle : "Doraemon Movie 45");
+        intent.putExtra("SHOWTIME_INFO", showtimeDetails);
+        intent.putExtra("TOTAL_PRICE", tvTotalPrice.getText().toString());
+        intent.putExtra("SEATS_LIST", seatsBuilder.toString());
+        intent.putExtra("ROOM_NAME", "RAP 5");
+
+        startActivity(intent);
+
     }
 
     private void calculateTotalPrice() {
@@ -252,7 +272,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
             switch (seat.getStatus()) {
                 case "booked": // Ghế đã có người khác đặt trước đó (Màu xám)
                     holder.tvSeat.setBackgroundResource(R.drawable.bg_seat_booked);
-                    holder.tvSeat.setTextColor(Color.TRANSPARENT); // Ẩn tên chữ đi giống ảnh mẫu của bạn
+                    holder.tvSeat.setTextColor(Color.TRANSPARENT); // Ẩn chữ đi cho đẹp
                     break;
 
                 case "selected": // Ghế người dùng đang kích chọn (Màu hồng sen chủ đạo)
@@ -267,7 +287,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
                     break;
             }
 
-            // Xử lý sự kiện click tương tác
+            // Xử lý sự kiện click tương tác chọn/hủy chọn ghế
             holder.itemView.setOnClickListener(v -> {
                 if (seat.getStatus().equals("booked")) return; // Khóa tương tác nếu ghế đã bán
 
