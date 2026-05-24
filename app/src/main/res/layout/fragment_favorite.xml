@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#F5F5F5">
 
@@ -15,28 +15,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="LỊCH SỬ VÉ CỦA TÔI"
+            android:text="DANH SÁCH PHIM YÊU THÍCH "
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/ticketScrollView"
+    <ListView
+        android:id="@+id/lvFavorites"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="visible">
-        <LinearLayout
-            android:id="@+id/ticketContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp" />
-    </ScrollView>
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:paddingTop="8dp"
+        android:clipToPadding="false"
+        android:visibility="visible" />
 
     <LinearLayout
-        android:id="@+id/layout_empty_state"
+        android:id="@+id/layout_empty_favorite"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -46,16 +43,16 @@
         android:visibility="gone">
 
         <ImageView
-            android:layout_width="160dp"
-            android:layout_height="120dp"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:tint="#DCDCDC"
-            android:layout_marginBottom="24dp"/>
+            android:layout_width="140dp"
+            android:layout_height="110dp"
+            android:src="@android:drawable/btn_star_big_off"
+            android:layout_marginBottom="24dp"
+            app:tint="#E0E0E0" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hiện tại bạn chưa đặt vé nào cả"
+            android:text="Danh sách yêu thích trống"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -64,32 +61,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đặt vé xem phim dễ dàng qua ứng dụng"
+            android:text="Hãy nhấn nút 'Thích' ở trang chi tiết phim để lưu lại tại đây"
             android:textSize="14sp"
             android:textColor="#757575"
             android:gravity="center"
             android:layout_marginBottom="24dp"/>
-
-        <Button
-            android:id="@+id/btnBookNow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đặt vé ngay"
-            android:paddingHorizontal="32dp"
-            android:backgroundTint="#D12260"
-            android:textColor="#FFFFFF"
-            android:textAllCaps="false"/>
     </LinearLayout>
-
-    <Button
-        android:layout_marginVertical="30dp"
-        android:layout_marginHorizontal="20dp"
-        android:id="@+id/btnHome"
-        android:layout_width="match_parent"
-        android:layout_height="58dp"
-        app:cornerRadius="12dp"
-        android:backgroundTint="#D81B60"
-        android:text="Về Trang Chủ"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"/>
 </LinearLayout>

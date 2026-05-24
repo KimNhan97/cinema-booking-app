@@ -7,7 +7,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigation;
+     BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new ProfileFragment();
             } else if (id == R.id.nav_tickets) {
                 fragment = new TicketFragment();
+            }else if (id == R.id.nav_favorites) {
+                fragment = new FavoriteFragment();
             }
 
             if (fragment != null) {

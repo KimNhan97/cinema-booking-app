@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 public class Movie implements Serializable {
 
-
-
-
     String movieId;
      String title;
      String description;
@@ -81,5 +78,36 @@ public class Movie implements Serializable {
     }
     public void setMovieId(String movieId) {
         this.movieId = movieId;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
+    }
+
+    public void setBannerUrl(String bannerUrl) {
+        this.bannerUrl = bannerUrl;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
