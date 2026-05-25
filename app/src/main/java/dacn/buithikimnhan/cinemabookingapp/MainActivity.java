@@ -7,7 +7,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-     BottomNavigationView bottomNavigation;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,36 +16,48 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
 
-        // Luôn hiển thị màn hình Home mặc định khi mở app hoặc quay về
+        // 1. Hiển thị Fragment Trang chủ (HomeFragment) mặc định ngay khi mở app
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
 
+        // 2. Thiết lập lắng nghe sự kiện chuyển đổi qua lại giữa các Tab của Khách hàng
+        setupBottomNavigation();
+    }
+
+    private void setupBottomNavigation() {
         bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment fragment = null;
             int id = item.getItemId();
 
+            // Rẽ nhánh chuyển đổi giữa các màn hình chức năng của User
             if (id == R.id.nav_home) {
-                fragment = new HomeFragment();
-            } else if (id == R.id.nav_profile) {
-                fragment = new ProfileFragment();
+                fragment = new HomeFragment();         // Màn hình chính xem danh sách phim
+            } else if (id == R.id.nav_favorites) {
+                fragment = new FavoriteFragment();     // Danh sách phim yêu thích
             } else if (id == R.id.nav_tickets) {
-                fragment = new TicketFragment();
-            }else if (id == R.id.nav_favorites) {
-                fragment = new FavoriteFragment();
+                fragment = new TicketFragment();       // Lịch sử các đơn vé đã mua
+            } else if (id == R.id.nav_profile) {
+                fragment = new ProfileFragment();      // Trang cá nhân & thông tin thành viên
             }
 
+            // Thực hiện thay thế Fragment tương ứng lên giao diện
             if (fragment != null) {
                 loadFragment(fragment);
+                return true;
             }
-            return true;
+
+            return false;
         });
     }
 
     private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment)
-                .commit();
+        // Kiểm tra an toàn trạng thái Lifecycle để tránh văng ứng dụng khi thao tác nhanh
+        if (!isFinishing() && !isDestroyed()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment)
+                    .commit();
+        }
     }
 }

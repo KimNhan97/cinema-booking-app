@@ -25,12 +25,9 @@ import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
-    // Thành phần giao diện thông tin cá nhân
     private ImageView imgAvatar, imgProfileCover;
     private TextView tvProfileName, tvMemberRank;
-    private TextView tvCountWatched, tvCountTickets, tvCountPoints;
-
-    // Thành phần View hiển thị Vé trực tiếp (Không dùng Adapter)
+     TextView tvCountWatched, tvCountTickets, tvCountPoints;
     private CardView cardTicketContainer;
     private LinearLayout layoutEmptyTicket;
     private TextView ticketMovieTitle, ticketShowTime, ticketRoom, ticketSeats, ticketPrice, ticketBookingId;
@@ -72,14 +69,29 @@ public class ProfileFragment extends Fragment {
         ticketSeats = view.findViewById(R.id.ticketSeats);
         ticketPrice = view.findViewById(R.id.ticketPrice);
         ticketBookingId = view.findViewById(R.id.ticketBookingId);
-
-        // Xử lý sự kiện nút đăng xuất tài khoản
+        //đăng xuất
         view.findViewById(R.id.btnLogOut).setOnClickListener(v -> {
-            auth.signOut();
-            Toast.makeText(getContext(), "Đã đăng xuất tài khoản", Toast.LENGTH_SHORT).show();
+
+            // 1. Thực hiện đăng xuất tài khoản khỏi Firebase Auth hệ thống
+            FirebaseAuth.getInstance().signOut();
+
+            // Thông báo cho người dùng biết
+            Toast.makeText(getContext(), "Đã đăng xuất tài khoản thành công", Toast.LENGTH_SHORT).show();
+
+            // 2. Tạo Intent để quay về màn hình Đăng nhập (LoginActivity)
             Intent intent = new Intent(getActivity(), LoginActivity.class);
+
+            // 3. Đặt cờ xóa sạch toàn bộ các Activity trước đó (Xóa MainActivity đang chạy ngầm)
+            // Giúp chặn việc người dùng nhấn nút Back trên điện thoại quay ngược lại trang cá nhân
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            // Kích hoạt chuyển màn hình
             startActivity(intent);
+
+            // Tạo hiệu ứng chuyển cảnh mượt mà (Fade Out giao diện cũ và Fade In giao diện Login)
+            if (getActivity() != null) {
+                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
         });
     }
 
