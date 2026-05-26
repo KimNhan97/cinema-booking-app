@@ -18,9 +18,9 @@ import java.util.Map;
 
 public class PaymentInfoActivity extends AppCompatActivity {
 
-    private TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice;
-    private ImageView btnBack;
-    private Button btnSubmitPayment;
+     TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice;
+     ImageView btnBack;
+     Button btnSubmitPayment;
 
     private FirebaseFirestore db;
     private String showtimeId = "";
@@ -125,8 +125,17 @@ public class PaymentInfoActivity extends AppCompatActivity {
         bookingData.put("movieTitle", tvMovieTitle.getText().toString());
         bookingData.put("room", tvRoomName.getText().toString());
         bookingData.put("status", "booked");
-        bookingData.put("totalPrice", tvTotalPrice.getText().toString().replace("đ", "").trim());
-        bookingData.put("userId", currentUserId); // Lưu bằng UID thật thay vì uid_001 mẫu
+
+        // === ĐOẠN ĐÃ SỬA: Xử lý làm sạch chuỗi tiền tệ trước khi đưa lên Firebase ===
+        String rawPrice = tvTotalPrice.getText().toString();
+        // Loại bỏ chữ "đ", dấu phẩy ",", dấu chấm "." và khoảng trắng thừa
+        String cleanPrice = rawPrice.replace("đ", "")
+                .replaceAll("[.,]", "")
+                .trim();
+        bookingData.put("totalPrice", cleanPrice); // Bây giờ sẽ lưu là "120000" thay vì "120,000"
+        // =========================================================================
+
+        bookingData.put("userId", currentUserId);
 
         // Tách chuỗi suất chiếu (Ví dụ: "18:36 - 2026-05-25") để đưa vào Firestore dạng trường độc lập
         String fullShowTimeText = tvShowTime.getText().toString();

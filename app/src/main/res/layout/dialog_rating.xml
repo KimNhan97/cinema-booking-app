@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center_horizontal"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đánh Giá Phim"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#B8004A"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trải nghiệm của bạn về bộ phim này thế nào?"
+        android:textColor="#757575"
+        android:textSize="13sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"/>
+    <RatingBar
+        android:id="@+id/dialogRatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:rating="5.0"
+        android:progressTint="#FFC107" />
+    <EditText
+        android:id="@+id/edtComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
+        android:gravity="top|start"
+        android:padding="10dp"
+        android:hint="Trải nghiệm của bạn về bộ phim này thế nào?"
+        android:textColor="#222222"
+        android:textColorHint="#888888"
+        android:background="@drawable/bg_date_unselected"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="end">
+        <Button
+            android:id="@+id/btnCancelReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hủy"
+            style="?android:attr/buttonBarButtonStyle"
+            android:textColor="#757575"/>
+        <Button
+            android:id="@+id/btnSubmitReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gửi Đánh Giá"
+            android:backgroundTint="#B8004A"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="12dp"/>
+    </LinearLayout>
+</LinearLayout>

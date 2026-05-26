@@ -32,11 +32,11 @@
                 android:background="#99171F33"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
-                android:text="⭐ 4.8"
+                android:text="⭐ 0.0/5"
                 android:textColor="@android:color/white"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:visibility="gone"/>
+                android:visibility="visible" />
         </FrameLayout>
     </androidx.cardview.widget.CardView>
 

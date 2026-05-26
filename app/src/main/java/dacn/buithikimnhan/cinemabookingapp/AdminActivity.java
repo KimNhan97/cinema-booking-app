@@ -14,20 +14,17 @@ public class AdminActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNav = findViewById(R.id.adminBottomNavigation);
 
-        // Hiển thị Fragment mặc định lúc mở màn hình là Dashboard
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.adminFragmentContainer, new DashboardFragment()).commit();
+                    .replace(R.id.adminFragmentContainer, new AdminDashboardFragment()).commit();
         }
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int id = item.getItemId();
 
-            if (id == R.id.nav_dashboard) selectedFragment = new DashboardFragment();
+            if (id == R.id.nav_dashboard) selectedFragment = new AdminDashboardFragment();
             else if (id == R.id.nav_movies) selectedFragment = new ManageMovieFragment();
-//            else if (id == R.id.nav_showtimes) selectedFragment = new ManageShowtimeFragment();
-//            else if (id == R.id.nav_bookings) selectedFragment = new ManageBookingFragment();
             else if (id == R.id.nav_users) selectedFragment = new ManageUserFragment();
 
             if (selectedFragment != null) {

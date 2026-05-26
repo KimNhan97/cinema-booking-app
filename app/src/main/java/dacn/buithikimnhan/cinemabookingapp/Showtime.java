@@ -9,8 +9,8 @@ public class Showtime {
     private String endTime;
      String room;
      int availableSeats;
-    private int totalSeats;
-    private String status;
+     int totalSeats;
+     String status;
 
     public Showtime() {}
 
