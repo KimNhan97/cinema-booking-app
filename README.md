@@ -21,6 +21,32 @@ Màn hình home của app_ch hoàn thiện:
 <img width="623" height="1334" alt="image" src="https://github.com/user-attachments/assets/59149576-3cff-48d0-831a-a28f1c31e2ae" />
 <img width="632" height="1350" alt="image" src="https://github.com/user-attachments/assets/201a5286-8dfc-4d92-b17b-9414e573114a" />
 <img width="620" height="1342" alt="image" src="https://github.com/user-attachments/assets/808c3b4a-9d91-421a-85e9-21ac2a54d11a" />
+<img width="627" height="1331" alt="image" src="https://github.com/user-attachments/assets/2e0889be-c6c6-4941-bfaf-16af264d34a0" />
+<img width="620" height="1336" alt="image" src="https://github.com/user-attachments/assets/31904ca0-ea91-4dbf-9950-e677eb81041c" />
+<img width="608" height="1299" alt="image" src="https://github.com/user-attachments/assets/231a4a7c-e029-4037-a980-0a62d9e54529" />
+<img width="601" height="1325" alt="image" src="https://github.com/user-attachments/assets/7defa854-3d42-4257-b416-124559d20b46" />
+<img width="608" height="1300" alt="image" src="https://github.com/user-attachments/assets/d0dbf6eb-4187-48c5-8186-95f4a255eca3" />
+<img width="611" height="1305" alt="image" src="https://github.com/user-attachments/assets/90e3401a-22a5-402f-af03-6b69abb77616" />
+<img width="627" height="1301" alt="image" src="https://github.com/user-attachments/assets/769d9623-4275-4ede-a60e-e2d2055c1f72" />
+<img width="613" height="1306" alt="image" src="https://github.com/user-attachments/assets/fa09bb07-3fc8-4ec2-857b-b8729c198a8d" />
+<img width="609" height="1312" alt="image" src="https://github.com/user-attachments/assets/de87d024-ffa2-473e-8c48-5509c91bb3ce" />
+<img width="609" height="1321" alt="image" src="https://github.com/user-attachments/assets/18fce211-0267-4f14-9077-74670dc9f768" />
+<img width="585" height="842" alt="image" src="https://github.com/user-attachments/assets/28150a9e-f540-4057-8cf5-8bad1a5e1598" />
+<img width="613" height="1318" alt="image" src="https://github.com/user-attachments/assets/189266a3-d591-4b4a-a9ba-2e74ecd3ffb5" />
+<img width="610" height="1319" alt="image" src="https://github.com/user-attachments/assets/1db382e7-5976-4ed0-8a3f-ab8aed9276a7" />
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
