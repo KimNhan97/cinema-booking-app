@@ -43,8 +43,8 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
         // Load ảnh banner bằng Glide
         Glide.with(context)
                 .load(movie.getBannerUrl())
-                .placeholder(R.drawable.movie1)
-                .error(R.drawable.movie1)
+                .placeholder(R.drawable.movie_test)
+                .error(R.drawable.movie_test)
                 .into(holder.imgBanner);
 
         // Tiêu đề phim

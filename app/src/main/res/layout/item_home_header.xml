@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/anh2" />
+            android:src="@drawable/img_background_beach" />
 
         <View
             android:layout_width="match_parent"

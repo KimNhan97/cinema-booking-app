@@ -176,8 +176,8 @@ public class FavoriteFragment extends Fragment {
             // Tải ảnh mượt mà bằng thư viện Glide
             Glide.with(context.getApplicationContext())
                     .load(imageToShow)
-                    .placeholder(R.drawable.movie1)
-                    .error(R.drawable.movie1)
+                    .placeholder(R.drawable.movie_test)
+                    .error(R.drawable.movie_test)
                     .into(imgPoster);
 
             return convertView;

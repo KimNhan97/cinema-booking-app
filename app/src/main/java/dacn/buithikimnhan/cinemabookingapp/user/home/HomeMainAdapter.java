@@ -114,8 +114,8 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             Glide.with(context)
                     .load(movie.getBannerUrl())
-                    .placeholder(R.drawable.movie1)
-                    .error(R.drawable.movie1)
+                    .placeholder(R.drawable.movie_test)
+                    .error(R.drawable.movie_test)
                     .into(movieHolder.imgMoviePoster);
 
             // Bổ sung hiển thị số sao

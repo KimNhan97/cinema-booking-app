@@ -69,8 +69,8 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
 
         Glide.with(context)
                 .load(movie.getPosterUrl())
-                .placeholder(R.drawable.movie1)
-                .error(R.drawable.movie1)
+                .placeholder(R.drawable.movie_test)
+                .error(R.drawable.movie_test)
                 .into(holder.imgPoster);
 
         // NÚT SỬA -> Hiện hộp thoại và điền sẵn dữ liệu phim hiện tại

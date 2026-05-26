@@ -218,8 +218,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         Glide.with(this)
                 .load(currentMovie.getBannerUrl())
-                .placeholder(R.drawable.movie1)
-                .error(R.drawable.movie1)
+                .placeholder(R.drawable.movie_test)
+                .error(R.drawable.movie_test)
                 .into(imgPoster);
 
         generateCurrentDates();
