@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +9,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowCompat;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class SplashActivity extends AppCompatActivity {
 

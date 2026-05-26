@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.movie;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -40,6 +40,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.user.booking.SeatSelectionActivity;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
+import dacn.buithikimnhan.cinemabookingapp.data.Review;
+import dacn.buithikimnhan.cinemabookingapp.data.Showtime;
 
 public class MovieDetailActivity extends AppCompatActivity {
 

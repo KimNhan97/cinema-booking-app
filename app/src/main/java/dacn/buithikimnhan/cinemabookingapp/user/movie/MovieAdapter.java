@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.movie;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 

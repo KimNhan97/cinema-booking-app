@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.home;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
+
+import dacn.buithikimnhan.cinemabookingapp.user.movie.MovieDetailActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
 
 public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
 

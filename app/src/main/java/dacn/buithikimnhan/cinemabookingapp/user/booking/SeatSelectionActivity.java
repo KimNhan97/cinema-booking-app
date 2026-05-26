@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.booking;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,12 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.data.Seat;
 
 public class SeatSelectionActivity extends AppCompatActivity {
 

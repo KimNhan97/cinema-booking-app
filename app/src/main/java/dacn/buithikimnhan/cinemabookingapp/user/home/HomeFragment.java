@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.home;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
+import dacn.buithikimnhan.cinemabookingapp.data.Review;
 
 public class HomeFragment extends Fragment {
 

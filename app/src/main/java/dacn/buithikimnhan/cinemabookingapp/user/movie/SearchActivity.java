@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.movie;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,6 +17,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
+import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
 
 public class SearchActivity extends AppCompatActivity {
 

@@ -1,9 +1,14 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.admin;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.admin.dashboard.AdminDashboardFragment;
+import dacn.buithikimnhan.cinemabookingapp.admin.movie.ManageMovieFragment;
+import dacn.buithikimnhan.cinemabookingapp.admin.account.ManageUserFragment;
 
 public class AdminActivity extends AppCompatActivity {
 

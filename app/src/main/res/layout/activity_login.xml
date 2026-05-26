@@ -8,7 +8,7 @@
     android:id="@+id/login"
     android:background="@drawable/bg_cinematic_gradient"
 
-    tools:context=".LoginActivity">
+    tools:context=".auth.LoginActivity">
 
     <ScrollView
         android:layout_width="match_parent"

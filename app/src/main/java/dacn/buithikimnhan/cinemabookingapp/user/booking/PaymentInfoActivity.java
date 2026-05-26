@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.booking;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import java.util.HashMap;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class PaymentInfoActivity extends AppCompatActivity {
 

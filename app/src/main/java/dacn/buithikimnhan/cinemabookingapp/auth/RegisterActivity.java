@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class RegisterActivity extends AppCompatActivity {
 

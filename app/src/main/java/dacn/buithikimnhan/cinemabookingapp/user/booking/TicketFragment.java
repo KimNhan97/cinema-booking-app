@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.booking;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,8 +18,10 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class TicketFragment extends Fragment {
 

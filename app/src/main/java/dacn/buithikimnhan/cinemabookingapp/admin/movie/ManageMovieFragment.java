@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.admin.movie;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.admin.dashboard.AdminMovieAdapter;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
 
 public class ManageMovieFragment extends Fragment {
 

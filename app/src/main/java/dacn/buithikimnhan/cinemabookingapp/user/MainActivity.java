@@ -1,9 +1,15 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.user.booking.TicketFragment;
+import dacn.buithikimnhan.cinemabookingapp.user.home.HomeFragment;
+import dacn.buithikimnhan.cinemabookingapp.user.movie.FavoriteFragment;
+import dacn.buithikimnhan.cinemabookingapp.user.profile.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
 

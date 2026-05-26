@@ -12,31 +12,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CinemaGo.Splash">
         <activity
-            android:name=".AdminActivity"
+            android:name=".admin.AdminActivity"
             android:exported="false" />
         <activity
             android:name=".TicketActivity"
             android:exported="false" />
         <activity
-            android:name=".PaymentInfoActivity"
+            android:name=".user.booking.PaymentInfoActivity"
             android:exported="false" />
         <activity
-            android:name=".SeatSelectionActivity"
+            android:name=".user.booking.SeatSelectionActivity"
             android:exported="false" />
         <activity
-            android:name=".SearchActivity"
+            android:name=".user.movie.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".MovieDetailActivity"
+            android:name=".user.movie.MovieDetailActivity"
             android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".auth.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".auth.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.CinemaGo.Splash">
             <intent-filter>
@@ -46,10 +46,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".auth.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".user.MainActivity"
             android:exported="false" />
     </application>
 

@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,10 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import dacn.buithikimnhan.cinemabookingapp.admin.AdminActivity;
+import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class LoginActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package dacn.buithikimnhan.cinemabookingapp;
+package dacn.buithikimnhan.cinemabookingapp.user.home;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,11 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 import java.util.Locale;
 
+import dacn.buithikimnhan.cinemabookingapp.user.movie.MovieDetailActivity;
+import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.user.movie.SearchActivity;
+import dacn.buithikimnhan.cinemabookingapp.data.Movie;
+
 public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_HEADER = 0;
@@ -33,7 +38,7 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private final Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
-    private ViewPager2 activeViewPager; // Lưu lại ViewPager để stop/start chính xác
+    private ViewPager2 activeViewPager;
 
     public HomeMainAdapter(Context context,
                            List<Movie> bannerMovies,
@@ -166,8 +171,6 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             sliderHandler.removeCallbacks(sliderRunnable);
         }
     }
-
-    // Thêm hàm startSlider ra bên ngoài để HomeFragment có thể chủ động kích hoạt lại khi dữ liệu Firestore tải xong
     public void startSlider() {
         startSliderInner();
     }

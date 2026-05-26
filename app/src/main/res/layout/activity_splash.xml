@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="#060E20"
     android:theme="@style/Theme.CinemaGo.Splash"
-    tools:context=".SplashActivity">
+    tools:context=".auth.SplashActivity">
 
     <View
         android:layout_width="300dp"
