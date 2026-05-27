@@ -32,6 +32,7 @@ Màn hình home của app_ch hoàn thiện:
 <img width="609" height="1312" alt="image" src="https://github.com/user-attachments/assets/de87d024-ffa2-473e-8c48-5509c91bb3ce" />
 <img width="609" height="1321" alt="image" src="https://github.com/user-attachments/assets/18fce211-0267-4f14-9077-74670dc9f768" />
 <img width="585" height="842" alt="image" src="https://github.com/user-attachments/assets/28150a9e-f540-4057-8cf5-8bad1a5e1598" />
+<img width="619" height="1351" alt="image" src="https://github.com/user-attachments/assets/d3d3303b-701b-4c2c-ba50-e3395b17ff21" />
 <img width="613" height="1318" alt="image" src="https://github.com/user-attachments/assets/189266a3-d591-4b4a-a9ba-2e74ecd3ffb5" />
 <img width="610" height="1319" alt="image" src="https://github.com/user-attachments/assets/1db382e7-5976-4ed0-8a3f-ab8aed9276a7" />
 <img width="548" height="285" alt="image" src="https://github.com/user-attachments/assets/b460740c-44f6-45c9-bb90-facfaa637481" />
@@ -41,7 +42,7 @@ Màn hình home của app_ch hoàn thiện:
 <img width="620" height="1339" alt="image" src="https://github.com/user-attachments/assets/b2d004ed-cb6f-41e9-ac27-ac5bc81e3f0d" />
 <img width="621" height="1338" alt="image" src="https://github.com/user-attachments/assets/08109c86-9b7b-427a-9dec-7c453aed3e17" />
 <img width="617" height="1331" alt="image" src="https://github.com/user-attachments/assets/6fecf515-ba1f-4066-b627-f666aab0fc48" />
-<img width="622" height="1335" alt="image" src="https://github.com/user-attachments/assets/311c0f48-42b2-4571-9827-c13188fbffd2" 
+<img width="622" height="1335" alt="image" src="https://github.com/user-attachments/assets/311c0f48-42b2-4571-9827-c13188fbffd2" />
 <img width="628" height="1350" alt="image" src="https://github.com/user-attachments/assets/2390b1c9-b0b7-43aa-95d7-70385e5d37d4" />
 <img width="631" height="1335" alt="image" src="https://github.com/user-attachments/assets/54470fd3-36a7-4bd1-88bd-5a21eb8ac73a" />
 
