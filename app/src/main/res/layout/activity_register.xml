@@ -93,6 +93,9 @@
                 android:layout_marginTop="16dp"
                 app:passwordToggleEnabled="true"
                 app:passwordToggleTint="@color/pink_neon"
+                app:boxBackgroundMode="none"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
                 app:hintEnabled="false">
                 <EditText
                     android:id="@+id/edtPassword"
@@ -116,6 +119,9 @@
                 android:layout_marginTop="16dp"
                 app:passwordToggleEnabled="true"
                 app:passwordToggleTint="@color/pink_neon"
+                app:boxBackgroundMode="none"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
                 app:hintEnabled="false">
                 <EditText
                     android:id="@+id/edtConfirmPassword"
@@ -130,7 +136,8 @@
                     android:drawableStart="@drawable/ic_lock"
                     android:drawablePadding="12dp"
                     android:autofillHints="password"
-                    android:inputType="textPassword"/>
+
+                    android:inputType="textPassword|textNoSuggestions" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox

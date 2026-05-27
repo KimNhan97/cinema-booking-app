@@ -7,7 +7,7 @@ public class Showtime {
     private String startTime;
 
     private String endTime;
-     String room;
+     private String room;
      int availableSeats;
      int totalSeats;
      String status;

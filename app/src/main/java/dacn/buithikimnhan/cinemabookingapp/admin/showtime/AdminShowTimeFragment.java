@@ -26,7 +26,7 @@ import dacn.buithikimnhan.cinemabookingapp.data.Showtime;
 public class AdminShowTimeFragment extends Fragment {
 
     private RecyclerView rvShowtimes;
-     EditText edtSearch;
+    EditText edtSearch;
     private Spinner spinnerFilter;
     private FirebaseFirestore db;
     private List<Showtime> fullShowtimeList;
@@ -96,6 +96,7 @@ public class AdminShowTimeFragment extends Fragment {
             applyFilterAndSearch();
         });
     }
+
     private void fetchMovieNameAndPopulate(Showtime showtime) {
         if (showtime.getMovieId() == null || showtime.getMovieId().isEmpty()) {
             showtime.setMovieName("Không rõ phim");
@@ -110,7 +111,6 @@ public class AdminShowTimeFragment extends Fragment {
             } else {
                 showtime.setMovieName("ID: " + showtime.getMovieId());
             }
-            // Cập nhật lại giao diện ngay khi tìm thấy tên phim tương ứng
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
             }
@@ -140,6 +140,18 @@ public class AdminShowTimeFragment extends Fragment {
             rvShowtimes.setAdapter(adapter);
         } else {
             adapter.notifyDataSetChanged();
+        }
+    }
+
+    // --- HÀM TRỢ GIÚP CHUYỂN ĐỔI ĐỊNH DẠNG "HH:mm" SANG SỐ PHÚT ĐỂ SO SÁNH TOÁN HỌC ---
+    private int convertTimeToMinutes(String timeStr) {
+        try {
+            String[] parts = timeStr.trim().split(":");
+            int hours = Integer.parseInt(parts[0]);
+            int minutes = Integer.parseInt(parts[1]);
+            return hours * 60 + minutes;
+        } catch (Exception e) {
+            return -1; // Định dạng thời gian không hợp lệ
         }
     }
 
@@ -191,7 +203,6 @@ public class AdminShowTimeFragment extends Fragment {
             }
             movieSpinnerAdapter.notifyDataSetChanged();
 
-
             if (showtime != null && showtime.getMovieId() != null) {
                 for (int i = 0; i < movieSpinnerList.size(); i++) {
                     if (movieSpinnerList.get(i).getId().equals(showtime.getMovieId())) {
@@ -223,6 +234,71 @@ public class AdminShowTimeFragment extends Fragment {
                 return;
             }
 
+            // Chuyển đổi mốc thời gian nhập vào sang số phút
+            int newStartMin = convertTimeToMinutes(start);
+            int newEndMin = convertTimeToMinutes(end);
+
+            if (newStartMin == -1 || newEndMin == -1) {
+                Toast.makeText(getContext(), "Thời gian không đúng định dạng HH:mm (VD: 14:30)!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (newStartMin >= newEndMin) {
+                Toast.makeText(getContext(), "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // ================= KHU VỰC THUẬT TOÁN: KIỂM TRA TRÙNG PHÒNG + NGÀY + GIỜ CHIẾU CHUẨN HÓA =================
+            boolean isOverlapped = false;
+            String conflictMovie = "";
+            String conflictTimeRange = "";
+
+            // 1. Chuẩn hóa chuỗi dữ liệu đầu vào người dùng vừa điền
+            String cleanInputRoom = room.trim().replace(" ", "").toLowerCase();
+            String cleanInputDate = date.trim().replace("/", "-"); // Ép hết dấu gạch chéo thành gạch ngang
+
+            for (Showtime existing : fullShowtimeList) {
+                // Nếu đang chỉnh sửa, bỏ qua việc tự so sánh trùng với chính bản thân nó
+                if (showtime != null && existing.getShowtimeId().equals(showtime.getShowtimeId())) {
+                    continue;
+                }
+
+                // 2. Chuẩn hóa dữ liệu có sẵn lấy lên từ Firebase để đối sánh chính xác
+                String cleanExistRoom = existing.getRoom() != null ? existing.getRoom().trim().replace(" ", "").toLowerCase() : "";
+                String cleanExistDate = existing.getDate() != null ? existing.getDate().trim().replace("/", "-") : "";
+
+                // 3. TIẾN HÀNH KIỂM TRA: Chỉ xét khi TRÙNG TÊN PHÒNG và TRÙNG NGÀY CHIẾU sau khi đã clean sạch chuỗi
+                if (cleanExistRoom.equals(cleanInputRoom) && cleanExistDate.equals(cleanInputDate)) {
+
+                    int existStartMin = convertTimeToMinutes(existing.getStartTime());
+                    int existEndMin = convertTimeToMinutes(existing.getEndTime());
+
+                    if (existStartMin != -1 && existEndMin != -1) {
+                        // Công thức kiểm tra khoảng thời gian chồng lấn:
+                        // (Bắt đầu mới < Kết thúc cũ) VÀ (Kết thúc mới > Bắt đầu cũ)
+                        if (newStartMin < existEndMin && newEndMin > existStartMin) {
+                            isOverlapped = true;
+                            conflictMovie = existing.getMovieName();
+                            conflictTimeRange = existing.getStartTime() + " ~ " + existing.getEndTime();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isOverlapped) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Trùng lịch phòng chiếu! ⚠️")
+                        .setMessage("Không thể lưu! Phòng '" + room + "' vào ngày " + date + " đã được xếp lịch cho phim:\n\n" +
+                                "🎬 Phim: " + conflictMovie + "\n" +
+                                "⏰ Thời gian: " + conflictTimeRange + "\n\n" +
+                                "Vui lòng chọn tên phòng khác hoặc thay đổi khung giờ chiếu.")
+                        .setPositiveButton("ĐÃ HIỂU", null)
+                        .show();
+                return; // Kết thúc hàm tại đây, chặn không cho ghi dữ liệu đè lên Firestore
+            }
+            // ==============================================================================================
+
             DocumentReference docRef = (showtime == null) ?
                     db.collection("showtimes").document() : db.collection("showtimes").document(showtime.getShowtimeId());
 
@@ -244,6 +320,7 @@ public class AdminShowTimeFragment extends Fragment {
 
         dialog.show();
     }
+
     private void showSeatsStatusDialog(Showtime showtime) {
         Dialog dialog = new Dialog(getContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth);
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_view_seats, null);
@@ -258,7 +335,6 @@ public class AdminShowTimeFragment extends Fragment {
         txtAvailableList.setText("Đang tải...");
         txtBookedList.setText("Đang tải...");
 
-        // Truy cập subcollection "seats" bên dưới id của suất chiếu hiện tại
         db.collection("showtimes").document(showtime.getShowtimeId()).collection("seats")
                 .get().addOnSuccessListener(querySnapshots -> {
                     loading.setVisibility(View.GONE);
@@ -266,19 +342,14 @@ public class AdminShowTimeFragment extends Fragment {
                     List<String> bookedSeats = new ArrayList<>();
 
                     for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String seatName = doc.getId(); // Trả ra các mã ghế A1, A2, B1...
+                        String seatName = doc.getId();
                         String seatStatus = doc.getString("status");
 
                         if (seatStatus != null) {
-                            // Chuyển về chữ thường để loại bỏ hoàn toàn các lỗi viết sai chính tả hoặc hoa thường
                             String cleanStatus = seatStatus.toLowerCase().trim();
-
                             if (cleanStatus.equals("booked")) {
                                 bookedSeats.add(seatName);
-                            } else if (cleanStatus.equals("available") || cleanStatus.equals("availible")) {
-                                availableSeats.add(seatName);
                             } else {
-                                // Trường hợp dự phòng nếu trạng thái trống bỏ ngỏ hoặc giá trị khác
                                 availableSeats.add(seatName);
                             }
                         } else {
@@ -286,7 +357,6 @@ public class AdminShowTimeFragment extends Fragment {
                         }
                     }
 
-                    // Đổ dữ liệu ra TextView giao diện
                     if (availableSeats.isEmpty()) {
                         txtAvailableList.setText("(Hết ghế trống)");
                     } else {
@@ -318,6 +388,7 @@ public class AdminShowTimeFragment extends Fragment {
                             Toast.makeText(getContext(), "Đã xóa suất chiếu thành công!", Toast.LENGTH_SHORT).show());
                 }).show();
     }
+
     private class ShowtimeAdapter extends RecyclerView.Adapter<ShowtimeAdapter.ShowtimeViewHolder> {
         private List<Showtime> items;
         public ShowtimeAdapter(List<Showtime> items) { this.items = items; }
@@ -355,8 +426,6 @@ public class AdminShowTimeFragment extends Fragment {
 
             holder.btnEdit.setOnClickListener(v -> showAddEditDialog(showtime));
             holder.btnDelete.setOnClickListener(v -> confirmDeleteShowtime(showtime));
-
-            // Kích hoạt hàm xử lý Lỗi 2 hiển thị chi tiết ghế trống/đã đặt
             holder.btnSeats.setOnClickListener(v -> showSeatsStatusDialog(showtime));
         }
 

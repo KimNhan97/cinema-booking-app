@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     // Ánh xạ đúng các ID từ file XML giao diện cinematic của bạn
     private EditText edtFullName, edtEmail, edtPassword, edtConfirmPassword;
     private CheckBox cbTerms;
-    private TextView tvSignIn;
+     TextView tvSignIn;
     private android.view.View btnCreateAccount; // Dùng View tổng quát vì XML của bạn khai báo thẻ <Button>
 
     private FirebaseAuth mAuth;

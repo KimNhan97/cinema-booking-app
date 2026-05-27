@@ -1,14 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".admin.account.ManageUserFragment">
+    android:orientation="vertical"
+    android:background="#F9F9FA"
+    android:padding="16dp">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QUẢN LÝ THÀNH VIÊN"
+        android:textColor="#D91A5C"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/edtSearchUser"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_glass_input"
+        android:hint="Tìm theo tên hoặc địa chỉ email..."
+        android:textColorHint="#F6F8FD"
+        android:textColor="#0D0A0A"
+        android:paddingHorizontal="16dp"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="10dp"
+        android:layout_marginBottom="12dp"
+        android:textSize="14sp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUsers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-</FrameLayout>
+        android:scrollbars="vertical"/>
+</LinearLayout>

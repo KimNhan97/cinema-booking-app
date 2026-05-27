@@ -7,12 +7,14 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,9 +26,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
 import dacn.buithikimnhan.cinemabookingapp.data.Booking;
@@ -36,12 +40,12 @@ public class AdminBookingFragment extends Fragment {
     private BookingAdapter adapter;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference bookingsRef = db.collection("bookings");
-     List<Booking> originalList = new ArrayList<>();
+    List<Booking> originalList = new ArrayList<>();
 
     private String currentStatusFilter = "Tất cả";
 
     private EditText edtSearch;
-     FloatingActionButton btnScanQR;
+    FloatingActionButton btnScanQR;
     private RecyclerView rvBookings;
 
     private TextView tvCountBooked, tvCountCheckedIn, tvCountCancelled;
@@ -74,7 +78,6 @@ public class AdminBookingFragment extends Fragment {
         setupTabFilters();
         listenToDataRealtime();
 
-        // Lắng nghe ô tìm kiếm
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -88,7 +91,6 @@ public class AdminBookingFragment extends Fragment {
             public void afterTextChanged(Editable s) {}
         });
 
-        // Quét QR Code soát vé
         btnScanQR.setOnClickListener(v -> {
             IntentIntegrator integrator = IntentIntegrator.forSupportFragment(AdminBookingFragment.this);
             integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
@@ -103,11 +105,92 @@ public class AdminBookingFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new BookingAdapter(getContext(), new ArrayList<>());
+        adapter = new BookingAdapter(getContext(), new ArrayList<>(), this::showTicketDetailDialog);
         rvBookings.setLayoutManager(new LinearLayoutManager(getContext()));
         rvBookings.setAdapter(adapter);
         rvBookings.setHasFixedSize(true);
         rvBookings.setNestedScrollingEnabled(true);
+    }
+
+    private void showTicketDetailDialog(Booking bookingData) {
+        if (getContext() == null || bookingData == null) return;
+
+        // Sử dụng AlertDialog.Builder để giải quyết vấn đề hiển thị chiều rộng Wrap_Content/Match_Parent
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_ticket_detail, null);
+        builder.setView(dialogView);
+
+        TextView tvBookingId = dialogView.findViewById(R.id.tvBookingId);
+        TextView tvMovieTitle = dialogView.findViewById(R.id.tvMovieTitle);
+        TextView tvRoomAndSeats = dialogView.findViewById(R.id.tvRoomAndSeats);
+        TextView tvPriceAndStatus = dialogView.findViewById(R.id.tvPriceAndStatus);
+        Button btnCheckIn = dialogView.findViewById(R.id.btnCheckIn);
+        Button btnCancelTicket = dialogView.findViewById(R.id.btnCancelTicket);
+
+        String id = bookingData.getBookingId();
+        String title = bookingData.getMovieTitle();
+        String room = bookingData.getRoom(); // Đối ứng chính xác với thuộc tính 'room' lưu trên Firestore
+        String startTime = bookingData.getStartTime();
+        String status = bookingData.getStatus();
+        long price = bookingData.getTotalPrice();
+        List<String> seats = bookingData.getSeats();
+
+        String seatsString = (seats != null && !seats.isEmpty()) ? String.join(", ", seats) : "Trống";
+
+        // Gán dữ liệu trực quan đi kèm nhãn tiêu đề để tránh bị trống thông tin
+        tvBookingId.setText("Mã đặt vé: " + (id != null ? id : "N/A"));
+        tvMovieTitle.setText("Phim: " + (title != null ? title : "N/A"));
+        tvRoomAndSeats.setText("Phòng: " + (room != null ? room : "N/A") + " | Giờ: " + (startTime != null ? startTime : "N/A") + " | Ghế: [" + seatsString + "]");
+
+        // Định dạng lại hiển thị số tiền theo tiền tệ Việt Nam (VND)
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedPrice = currencyFormat.format(price);
+
+        String displayStatus = "Chưa rõ";
+        if (status != null) {
+            switch (status.toLowerCase()) {
+                case "booked": displayStatus = "Đã đặt ghế"; break;
+                case "checked_in": displayStatus = "Đã vào rạp"; break;
+                case "cancelled": displayStatus = "Đã hủy"; break;
+            }
+        }
+        tvPriceAndStatus.setText("Tổng tiền: " + formattedPrice + " | Trạng thái: " + displayStatus);
+
+        // Ẩn hoàn toàn các nút chức năng nếu vé đã hoàn tất soát vé hoặc đã bị hủy trước đó
+        if ("checked_in".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status)) {
+            btnCheckIn.setVisibility(View.GONE);
+            btnCancelTicket.setVisibility(View.GONE);
+        }
+
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            // Đặt background trong suốt để bo góc layout custom (.xml) không bị lồi nền trắng vuông bên dưới
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        btnCheckIn.setOnClickListener(v -> {
+            if (id != null) {
+                bookingsRef.document(id).update("status", "checked_in")
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Đã soát vé thành công!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
+
+        btnCancelTicket.setOnClickListener(v -> {
+            if (id != null) {
+                bookingsRef.document(id).update("status", "cancelled")
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Đã hủy vé thành công!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
+
+        dialog.show();
     }
 
     private void setupTabFilters() {
@@ -133,7 +216,7 @@ public class AdminBookingFragment extends Fragment {
 
             tab.setPadding(dpToPx(14), dpToPx(8), dpToPx(14), dpToPx(8));
         }
-        selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
 
         android.graphics.drawable.GradientDrawable activeShape = new android.graphics.drawable.GradientDrawable();
         activeShape.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
@@ -197,7 +280,6 @@ public class AdminBookingFragment extends Fragment {
                 }
             }
 
-            // Bộ lọc tìm kiếm bằng chữ
             if (!keyword.isEmpty()) {
                 String title = (item.getMovieTitle() != null ? item.getMovieTitle() : "").toLowerCase();
                 String bId = (item.getBookingId() != null ? item.getBookingId() : "").toLowerCase();
@@ -211,7 +293,6 @@ public class AdminBookingFragment extends Fragment {
             filteredList.add(item);
         }
 
-        // Sắp xếp giảm dần theo ngày chiếu và giờ chiếu
         Collections.sort(filteredList, (o1, o2) -> {
             String d1 = o1.getDate();
             String d2 = o2.getDate();

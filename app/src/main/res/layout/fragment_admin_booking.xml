@@ -17,8 +17,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Quản lý vé"
-            android:textColor="#801515"
+            android:text="QUẢN LÝ VÉ "
+            android:textColor="#E91E63"
             android:textSize="20sp"
             android:textStyle="bold" />
     </RelativeLayout>
@@ -239,17 +239,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layoutTopContent"
-        android:layout_above="@id/viewSpacer"
         android:paddingHorizontal="16dp"
         android:clipToPadding="false"
+        android:paddingBottom="88dp"
         android:scrollbars="vertical"/>
-
-    <View
-        android:id="@+id/viewSpacer"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnScanQR"
@@ -258,7 +251,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
-        android:backgroundTint="#A62B2B"
+        android:backgroundTint="#E91E63"
         app:tint="#FFFFFF"
         android:src="@android:drawable/ic_menu_camera"
         app:fabSize="normal"

@@ -1,21 +1,18 @@
 package dacn.buithikimnhan.cinemabookingapp.admin.booking;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
 import dacn.buithikimnhan.cinemabookingapp.data.Booking;
@@ -23,11 +20,17 @@ import dacn.buithikimnhan.cinemabookingapp.data.Booking;
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
 
     private final Context context;
-     List<Booking> bookingList;
+    private final List<Booking> bookingList;
+    private final OnBookingClickListener clickListener;
 
-    public BookingAdapter(Context context, List<Booking> bookingList) {
+    public interface OnBookingClickListener {
+        void onBookingClick(Booking booking);
+    }
+
+    public BookingAdapter(Context context, List<Booking> bookingList, OnBookingClickListener clickListener) {
         this.context = context;
         this.bookingList = bookingList;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -51,7 +54,9 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
         holder.tvMovieTitle.setText(title != null ? title : "");
         holder.tvBookingId.setText("Mã vé: " + (id != null ? id : ""));
-        holder.tvPrice.setText(price + "đ");
+
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        holder.tvPrice.setText(currencyFormat.format(price));
 
         if (room != null && startTime != null) {
             holder.tvTime.setText(room + " - " + startTime);
@@ -65,7 +70,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             holder.tvSeats.setText("");
         }
 
-        // ĐỒNG BỘ MÀU SẮC ĐỒNG ĐỀU (Thanh Indicator bên trái trùng khít màu nhãn Tag trạng thái)
         if (status != null) {
             switch (status.toLowerCase()) {
                 case "booked":
@@ -99,7 +103,11 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             }
         }
 
-        holder.itemView.setOnClickListener(v -> showTicketDetailDialog(booking));
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onBookingClick(booking);
+            }
+        });
     }
 
     @Override
@@ -111,65 +119,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         this.bookingList.clear();
         this.bookingList.addAll(newList);
         notifyDataSetChanged();
-    }
-
-    private void showTicketDetailDialog(Booking bookingData) {
-        Dialog dialog = new Dialog(context);
-        dialog.setContentView(R.layout.dialog_ticket_detail);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        TextView tvBookingId = dialog.findViewById(R.id.tvBookingId);
-        TextView tvMovieTitle = dialog.findViewById(R.id.tvMovieTitle);
-        TextView tvRoomAndSeats = dialog.findViewById(R.id.tvRoomAndSeats);
-        TextView tvPriceAndStatus = dialog.findViewById(R.id.tvPriceAndStatus);
-        Button btnCheckIn = dialog.findViewById(R.id.btnCheckIn);
-        Button btnCancelTicket = dialog.findViewById(R.id.btnCancelTicket);
-
-        String id = bookingData.getBookingId();
-        String title = bookingData.getMovieTitle();
-        String room = bookingData.getRoom();
-        String startTime = bookingData.getStartTime();
-        String status = bookingData.getStatus();
-        long price = bookingData.getTotalPrice();
-        List<String> seats = bookingData.getSeats();
-
-        String seatsString = (seats != null && !seats.isEmpty()) ? String.join(", ", seats) : "";
-
-        tvBookingId.setText("Mã đặt vé: " + id);
-        tvMovieTitle.setText(title);
-        tvRoomAndSeats.setText("Phòng: " + room + " | Giờ: " + startTime + " | Ghế: " + seatsString);
-        tvPriceAndStatus.setText("Tổng tiền: " + price + "đ | Trạng thái: " + status);
-
-        if ("checked_in".equals(status) || "cancelled".equals(status)) {
-            btnCheckIn.setEnabled(false);
-            btnCancelTicket.setEnabled(false);
-        }
-
-        FirebaseFirestore firestoreDb = FirebaseFirestore.getInstance();
-
-        btnCheckIn.setOnClickListener(v -> {
-            if (id != null) {
-                firestoreDb.collection("bookings").document(id).update("status", "checked_in")
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(context, "Đã soát vé thành công!", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        });
-            }
-        });
-
-        btnCancelTicket.setOnClickListener(v -> {
-            if (id != null) {
-                firestoreDb.collection("bookings").document(id).update("status", "cancelled")
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(context, "Đã hủy vé thành công!", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        });
-            }
-        });
-
-        dialog.show();
     }
 
     public static class BookingViewHolder extends RecyclerView.ViewHolder {

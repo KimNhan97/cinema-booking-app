@@ -1,6 +1,7 @@
 package dacn.buithikimnhan.cinemabookingapp.admin.dashboard;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,27 +10,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.auth.LoginActivity;
 import dacn.buithikimnhan.cinemabookingapp.data.Movie;
 import dacn.buithikimnhan.cinemabookingapp.data.Review;
+import dacn.buithikimnhan.cinemabookingapp.data.Showtime;
 
 public class AdminDashboardFragment extends Fragment {
 
@@ -37,18 +46,22 @@ public class AdminDashboardFragment extends Fragment {
 
     private View cardRevenue, cardTickets, cardUsers, cardMovies;
     private TextView tvRevenue, tvTicketsSold, tvTotalUsers, tvActiveMovies;
+    private AppCompatButton btnAdminLogOut;
 
-     RecyclerView rvHotMovies;
-     RecyclerView rvSessions;
-     RecyclerView rvBookings;
+    RecyclerView rvHotMovies;
+    RecyclerView rvSessions;
+    RecyclerView rvBookings;
 
     private List<Movie> hotMovieList;
     private HotMovieAdapter hotMovieAdapter;
 
+    // Danh sách và adapter cho suất chiếu hôm nay
+    private List<Showtime> showtimeList;
+    private DashboardShowtimeAdapter showtimeAdapter;
+
     private FirebaseFirestore db;
 
     public AdminDashboardFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -63,7 +76,6 @@ public class AdminDashboardFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-
         cardRevenue = view.findViewById(R.id.cardRevenue);
         cardTickets = view.findViewById(R.id.cardTickets);
         cardUsers = view.findViewById(R.id.cardUsers);
@@ -73,33 +85,51 @@ public class AdminDashboardFragment extends Fragment {
         tvTicketsSold = view.findViewById(R.id.tvTicketsSold);
         tvTotalUsers = view.findViewById(R.id.tvTotalUsers);
         tvActiveMovies = view.findViewById(R.id.tvActiveMovies);
+        btnAdminLogOut = view.findViewById(R.id.btnAdminLogOut);
 
         rvHotMovies = view.findViewById(R.id.rvHotMovies);
         rvSessions = view.findViewById(R.id.rvSessions);
         rvBookings = view.findViewById(R.id.rvBookings);
 
+        if (btnAdminLogOut != null) {
+            btnAdminLogOut.setOnClickListener(v -> {
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(getContext(), "Admin đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                if (getActivity() != null) {
+                    getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
+            });
+        }
+
+        // Cấu hình RecyclerView Phim hot nhất
         if (rvHotMovies != null) {
             rvHotMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             hotMovieList = new ArrayList<>();
             hotMovieAdapter = new HotMovieAdapter(hotMovieList);
             rvHotMovies.setAdapter(hotMovieAdapter);
         }
+
+        // Cấu hình RecyclerView Suất chiếu hôm nay
         if (rvSessions != null) {
             rvSessions.setLayoutManager(new LinearLayoutManager(getContext()));
+            showtimeList = new ArrayList<>();
+            showtimeAdapter = new DashboardShowtimeAdapter(showtimeList);
+            rvSessions.setAdapter(showtimeAdapter);
         }
+
         if (rvBookings != null) {
             rvBookings.setLayoutManager(new LinearLayoutManager(getContext()));
         }
 
         setupAnimations();
         fetchFirestoreData();
-
-
     }
 
     private void fetchFirestoreData() {
-
-        // --- 1. TÍNH TOÁN DOANH THU & VÉ TỪ COLLECTION "bookings" ---
+        // 1. Lấy dữ liệu Doanh thu & Vé bán ra từ Bookings
         db.collection("bookings")
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
@@ -139,7 +169,7 @@ public class AdminDashboardFragment extends Fragment {
                     }
                 });
 
-        // --- 2. DỰA TRÊN ĐỐI TƯỢNG REVIEW.CLASS ĐỂ XÉT RATING PHIM HOT ---
+        // 2. Lấy đánh giá và danh sách Phim Hot Nhất
         db.collection("reviews")
                 .addSnapshotListener((reviewSnapshots, reviewError) -> {
                     if (reviewError != null) {
@@ -147,15 +177,12 @@ public class AdminDashboardFragment extends Fragment {
                         return;
                     }
 
-                    // Map gom nhóm thống kê: movieId -> [Tổng số điểm sao, Số lượt đánh giá]
                     Map<String, double[]> reviewStatsMap = new HashMap<>();
 
                     if (reviewSnapshots != null) {
                         for (QueryDocumentSnapshot doc : reviewSnapshots) {
                             try {
-                                // Tự động ép kiểu (Mapping) trực tiếp sang Class Review của bạn cực kỳ an toàn
                                 Review review = doc.toObject(Review.class);
-
                                 String mId = review.getMovieId();
                                 double ratingValue = review.getRating();
 
@@ -165,17 +192,16 @@ public class AdminDashboardFragment extends Fragment {
                                     }
                                     double[] stats = reviewStatsMap.get(mId);
                                     if (stats != null) {
-                                        stats[0] += ratingValue; // Cộng dồn điểm rating từ object review
-                                        stats[1] += 1.0;         // Đếm tăng số lượt review thêm 1
+                                        stats[0] += ratingValue;
+                                        stats[1] += 1.0;
                                     }
                                 }
                             } catch (Exception e) {
-                                Log.e(TAG, "Lỗi khi ép kiểu dữ liệu từ tư liệu Review document ID: " + doc.getId(), e);
+                                Log.e(TAG, "Lỗi khi ép kiểu Review ID: " + doc.getId(), e);
                             }
                         }
                     }
 
-                    // Sau khi tổng hợp xong Map từ bảng reviews, lấy bảng movies để kết xuất danh sách cuối cùng
                     db.collection("movies")
                             .addSnapshotListener((movieSnapshots, movieError) -> {
                                 if (movieError != null) {
@@ -190,17 +216,14 @@ public class AdminDashboardFragment extends Fragment {
                                     for (QueryDocumentSnapshot doc : movieSnapshots) {
                                         Movie movie = doc.toObject(Movie.class);
 
-                                        // Gán ID từ document Firestore làm movieId dự phòng nếu field bị trống
                                         if (movie.getMovieId() == null) {
                                             movie.setMovieId(doc.getId());
                                         }
 
-                                        // Đối chiếu tính toán số điểm sao dựa vào Map thống kê Review phía trên
                                         if (reviewStatsMap.containsKey(movie.getMovieId())) {
                                             double[] stats = reviewStatsMap.get(movie.getMovieId());
                                             if (stats != null && stats[1] > 0) {
                                                 double rawAvg = stats[0] / stats[1];
-                                                // Làm tròn lấy đúng một chữ số sau dấu phẩy (Ví dụ: 4.8)
                                                 double roundedAvg = Math.round(rawAvg * 10.0) / 10.0;
                                                 movie.setAverageRating(roundedAvg);
                                                 movie.setRatingCount((int) stats[1]);
@@ -213,16 +236,13 @@ public class AdminDashboardFragment extends Fragment {
                                         hotMovieList.add(movie);
                                     }
 
-                                    // Sắp xếp danh sách phim theo số sao trung bình giảm dần (Phim Hot lên đầu)
                                     Collections.sort(hotMovieList, (m1, m2) -> Double.compare(m2.getAverageRating(), m1.getAverageRating()));
-
-                                    // Đẩy dữ liệu đã làm mới lên giao diện RecyclerView
                                     hotMovieAdapter.notifyDataSetChanged();
                                 }
                             });
                 });
 
-        // --- 3. ĐẾM SỐ LƯỢNG TÀI KHOẢN TỪ COLLECTION "users" ---
+        // 3. Lấy dữ liệu Tổng số tài khoản người dùng
         db.collection("users")
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
@@ -234,10 +254,48 @@ public class AdminDashboardFragment extends Fragment {
                         tvTotalUsers.setText(userCount + " tài khoản");
                     }
                 });
+
+        // 4. Lấy dữ liệu Suất chiếu hôm nay - DO DB ĐÃ CÓ "movieName" NÊN ĐỌC THẲNG LUÔN
+        // Đảm bảo định dạng là "yyyy/MM/dd" có dấu gạch chéo trùng với Firestore
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
+        String todayStr = sdf.format(new Date());
+
+        Log.d("AdminDashboard", "Ngày hôm nay hệ thống quét: " + todayStr); // Bạn có thể xem Logcat xem máy quét đúng ngày không
+
+        db.collection("showtimes")
+                .whereEqualTo("date", todayStr)
+                .addSnapshotListener((showtimeSnapshots, showtimeError) -> {
+                    if (showtimeError != null) {
+                        Log.e(TAG, "Lỗi khi lấy dữ liệu showtimes: ", showtimeError);
+                        return;
+                    }
+
+                    if (showtimeSnapshots != null) {
+                        showtimeList.clear();
+                        for (QueryDocumentSnapshot doc : showtimeSnapshots) {
+                            try {
+                                Showtime showtime = doc.toObject(Showtime.class);
+                                if (showtime.getShowtimeId() == null) {
+                                    showtime.setShowtimeId(doc.getId());
+                                }
+                                showtimeList.add(showtime);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Lỗi xử lý gán dữ liệu Showtime: " + doc.getId(), e);
+                            }
+                        }
+
+                        // Sắp xếp suất chiếu tăng dần theo thời gian bắt đầu
+                        Collections.sort(showtimeList, (s1, s2) -> {
+                            if (s1.getStartTime() == null || s2.getStartTime() == null) return 0;
+                            return s1.getStartTime().compareTo(s2.getStartTime());
+                        });
+
+                        showtimeAdapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     private void setupAnimations() {
-
         setTouchAnimation(cardRevenue);
         setTouchAnimation(cardTickets);
         setTouchAnimation(cardUsers);
@@ -264,9 +322,6 @@ public class AdminDashboardFragment extends Fragment {
         });
     }
 
-    /**
-     * Inner Class Adapter kết xuất danh sách phim có số hiệu Rank đè lên Poster
-     */
     private class HotMovieAdapter extends RecyclerView.Adapter<HotMovieAdapter.MovieViewHolder> {
 
         private final List<Movie> list;
@@ -286,15 +341,10 @@ public class AdminDashboardFragment extends Fragment {
         public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
             Movie movie = list.get(position);
 
-            // Đặt số thứ tự xếp hạng (Bắt đầu hiển thị từ số 1 tăng dần)
             holder.tvRankNumber.setText(String.valueOf(position + 1));
-
             holder.tvMovieTitle.setText(movie.getTitle());
-
-            // Kết xuất hiển thị: ⭐ 4.5 (12 đánh giá)
             holder.tvRating.setText(String.format(Locale.US, "⭐ %.1f (%d đánh giá)", movie.getAverageRating(), movie.getRatingCount()));
 
-            // Gọi thư viện Glide nạp ảnh từ posterUrl
             if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
                 Glide.with(holder.itemView.getContext())
                         .load(movie.getPosterUrl())
@@ -320,5 +370,7 @@ public class AdminDashboardFragment extends Fragment {
                 imgPoster = itemView.findViewById(R.id.imgPoster);
             }
         }
+
     }
+
 }

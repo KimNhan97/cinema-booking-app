@@ -19,7 +19,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_glass_card"
-        app:itemIconSize="34dp"
+        app:itemIconSize="30dp"
         app:itemIconTint="#E96792"
         app:itemTextColor="#D8EAF0"
         app:menu="@menu/menu_admin_bottom_nav" />

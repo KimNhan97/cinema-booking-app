@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_dashboard"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="Thống Kê" />
+        android:icon="@drawable/ic_nav_dashboard"
+        android:title="Dashboard" />
     <item
         android:id="@+id/nav_movies"
-        android:icon="@android:drawable/ic_menu_slideshow"
-        android:title="Phim" />
+        android:icon="@drawable/ic_nav_movies"
+        android:title="Movies" />
     <item
         android:id="@+id/nav_showtime"
-        android:icon="@android:drawable/ic_menu_my_calendar"
-        android:title="Lịch Chiếu" />
+        android:icon="@drawable/ic_nav_showtime"
+        android:title="Showtimes" />
     <item
         android:id="@+id/nav_bookings"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Đơn Vé" />
+        android:icon="@drawable/ic_nav_tickets"
+        android:title="Bookings" />
     <item
         android:id="@+id/nav_users"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@drawable/ic_nav_profile"
         android:title="User" />
 </menu>

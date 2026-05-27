@@ -15,8 +15,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Quản lý Suất chiếu"
-            android:textColor="#1A202C"
+            android:text="QUẢN LÝ SUẤT CHIẾU"
+            android:textColor="#E91E63"
             android:textSize="18sp"
             android:textStyle="bold" />
     </RelativeLayout>
@@ -83,7 +83,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#B3395F"
+        app:backgroundTint="#E91E63"
         app:tint="#FFFFFF"
         android:contentDescription="Thêm suất chiếu" />
 </RelativeLayout>
