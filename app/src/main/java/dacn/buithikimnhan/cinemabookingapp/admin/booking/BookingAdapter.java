@@ -23,7 +23,7 @@ import dacn.buithikimnhan.cinemabookingapp.data.Booking;
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
 
     private final Context context;
-    private List<Booking> bookingList;
+     List<Booking> bookingList;
 
     public BookingAdapter(Context context, List<Booking> bookingList) {
         this.context = context;
@@ -107,7 +107,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         return bookingList != null ? bookingList.size() : 0;
     }
 
-    // Làm sạch Adapter trước khi thêm tập dữ liệu mới để đồng bộ chuẩn xác UI
     public void updateData(List<Booking> newList) {
         this.bookingList.clear();
         this.bookingList.addAll(newList);

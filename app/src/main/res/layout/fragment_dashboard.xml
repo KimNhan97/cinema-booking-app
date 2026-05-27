@@ -84,20 +84,22 @@
                     android:orientation="vertical"
                     android:padding="16dp"
                     tools:targetApi="lollipop">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="DOANH THU"
-                        android:textColor="#64748B"
+                        android:textColor="#0C5ACA"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
                     <TextView
                         android:id="@+id/tvRevenue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0đ"
-                        android:textColor="#0F172A"
+                        android:textColor="#072362"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -118,7 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="VÉ ĐÃ BÁN"
-                        android:textColor="#64748B"
+                        android:textColor="#E91E63"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                     <TextView
@@ -127,7 +129,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0 vé"
-                        android:textColor="#0F172A"
+                        android:textColor="#BC1D53"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -148,7 +150,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="NGƯỜI DÙNG"
-                        android:textColor="#64748B"
+                        android:textColor="#129D91"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                     <TextView
@@ -157,7 +159,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0 nick"
-                        android:textColor="#0F172A"
+                        android:textColor="#136861"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -178,7 +180,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ĐANG CHIẾU"
-                        android:textColor="#64748B"
+                        android:textColor="#BFB022"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                     <TextView
@@ -187,7 +189,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0 phim"
-                        android:textColor="#0F172A"
+                        android:textColor="#6B5719"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 

@@ -31,10 +31,10 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
     private RecyclerView rvSeatMap;
     private TextView tvTotalPrice, tvMovieTitle, tvShowtimeInfo;
-    private ImageView btnBack;
-    private Button btnContinue;
+     ImageView btnBack;
+     Button btnContinue;
 
-    private List<Seat> seatList = new ArrayList<>();
+     List<Seat> seatList = new ArrayList<>();
     private SeatAdapter seatAdapter;
     private FirebaseFirestore db;
 
@@ -43,8 +43,8 @@ public class SeatSelectionActivity extends AppCompatActivity {
     private String movieTitle = "";
     private String showtimeDetails = "";
 
-    private long totalPrice = 0;
-    private List<Seat> selectedSeatsList = new ArrayList<>();
+     long totalPrice = 0;
+     List<Seat> selectedSeatsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

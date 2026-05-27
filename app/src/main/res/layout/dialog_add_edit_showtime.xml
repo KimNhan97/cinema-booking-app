@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/txtDialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="THÊM SUẤT CHIẾU MỚI"
+            android:textColor="#1A202C"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chọn Bộ Phim" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+        <Spinner android:id="@+id/dialogSpinnerMovie" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginBottom="16dp" android:background="@drawable/bg_glass_card"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tên Phòng" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+        <EditText android:id="@+id/dialogRoom" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginBottom="16dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:textSize="14sp" android:textColor="#1A202C"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ngày Chiếu (YYYY-MM-DD)" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+        <EditText android:id="@+id/dialogDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginBottom="16dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:textSize="14sp" android:textColor="#1A202C" android:hint="2026-05-31"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2" android:layout_marginBottom="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Giờ bắt đầu" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+                <EditText android:id="@+id/dialogStartTime" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:textSize="14sp" android:textColor="#1A202C" android:hint="18:00"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Giờ kết thúc" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+                <EditText android:id="@+id/dialogEndTime" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:textSize="14sp" android:textColor="#1A202C" android:hint="20:02"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2" android:layout_marginBottom="20dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ghế khả dụng" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+                <EditText android:id="@+id/dialogAvailableSeats" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:inputType="number" android:textSize="14sp" android:textColor="#1A202C"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tổng số ghế" android:textSize="12sp" android:textStyle="bold" android:textColor="#4A5568" android:layout_marginBottom="4dp"/>
+                <EditText android:id="@+id/dialogTotalSeats" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@android:drawable/editbox_background" android:padding="12dp" android:inputType="number" android:textSize="14sp" android:textColor="#1A202C"/>
+            </LinearLayout>
+        </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trạng thái"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#4A5568"
+                android:layout_marginBottom="6dp"/>
+
+            <RadioGroup
+                android:id="@+id/dialogRadioGroupStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <RadioButton
+                    android:id="@+id/radOpen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đang mở"
+                    android:textColor="#1A202C"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="24dp"/>
+
+                <RadioButton
+                    android:id="@+id/radClose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đóng cửa"
+                    android:textColor="#1A202C"
+                    android:textSize="14sp"/>
+            </RadioGroup>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end">
+            <Button android:id="@+id/btnDialogCancel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HỦY BỎ" style="?android:attr/borderlessButtonStyle" android:textColor="#718096" android:layout_marginEnd="12dp"/>
+            <Button android:id="@+id/btnDialogConfirm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="XÁC NHẬN" android:backgroundTint="#B3395F" android:textColor="#FFFFFF"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

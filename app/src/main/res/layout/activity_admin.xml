@@ -13,10 +13,14 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/adminBottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
-        app:menu="@menu/menu_admin_bottom_nav"
-        app:itemIconTint="#B8004A"
-        app:itemTextColor="#191C1D"/>
+        android:layout_margin="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_glass_card"
+        app:itemIconSize="34dp"
+        app:itemIconTint="#E96792"
+        app:itemTextColor="#D8EAF0"
+        app:menu="@menu/menu_admin_bottom_nav" />
 </RelativeLayout>

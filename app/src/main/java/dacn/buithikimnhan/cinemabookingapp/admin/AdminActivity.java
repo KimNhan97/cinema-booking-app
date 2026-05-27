@@ -10,6 +10,7 @@ import dacn.buithikimnhan.cinemabookingapp.admin.booking.AdminBookingFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.dashboard.AdminDashboardFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.movie.ManageMovieFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.account.ManageUserFragment;
+import dacn.buithikimnhan.cinemabookingapp.admin.showtime.AdminShowTimeFragment;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -32,7 +33,7 @@ public class AdminActivity extends AppCompatActivity {
             if (id == R.id.nav_dashboard) selectedFragment = new AdminDashboardFragment();
             else if (id == R.id.nav_movies) selectedFragment = new ManageMovieFragment();
             else if (id == R.id.nav_bookings) selectedFragment = new AdminBookingFragment();
-            else if (id == R.id.nav_showtime) selectedFragment = new AdminBookingFragment();
+            else if (id == R.id.nav_showtime) selectedFragment = new AdminShowTimeFragment();
             else if (id == R.id.nav_users) selectedFragment = new ManageUserFragment();
 
             if (selectedFragment != null) {
