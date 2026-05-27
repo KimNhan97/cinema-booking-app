@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,12 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CinemaGo.Splash">
+
         <activity
             android:name=".admin.AdminActivity"
-            android:exported="false" />
-        <activity
-            android:name=".TicketActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
         <activity
             android:name=".user.booking.PaymentInfoActivity"
             android:exported="false" />
@@ -30,11 +33,9 @@
             android:name=".user.movie.MovieDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
-        <activity
             android:name=".auth.RegisterActivity"
             android:exported="false" />
+
         <activity
             android:name=".auth.SplashActivity"
             android:exported="true"
@@ -45,12 +46,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".auth.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".user.MainActivity"
             android:exported="false" />
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            android:stateNotNeeded="true"
+            tools:replace="android:screenOrientation" />
+
     </application>
 
 </manifest>

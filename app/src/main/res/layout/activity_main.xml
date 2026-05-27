@@ -20,6 +20,6 @@
         android:background="@drawable/bg_glass_card"
         app:itemIconTint="#E5BDBE"
         app:itemTextColor="#E5BDBE"
-        app:menu="@menu/bottom_nav_menu"/>
+        app:menu="@menu/menu_user_bottom_nav"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

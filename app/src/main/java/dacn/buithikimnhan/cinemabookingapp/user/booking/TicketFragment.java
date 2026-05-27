@@ -1,12 +1,14 @@
 package dacn.buithikimnhan.cinemabookingapp.user.booking;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -28,7 +30,7 @@ public class TicketFragment extends Fragment {
     private ScrollView ticketScrollView;
     private LinearLayout ticketContainer;
     private LinearLayout layoutEmptyState;
-    private Button btnHome, btnBookNow;
+     Button btnHome, btnBookNow;
 
     private FirebaseFirestore db;
     private LayoutInflater mInflater;
@@ -51,9 +53,11 @@ public class TicketFragment extends Fragment {
         btnBookNow = view.findViewById(R.id.btnBookNow);
 
         View.OnClickListener goHomeListener = v -> {
-            Intent homeIntent = new Intent(getActivity(), MainActivity.class);
-            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(homeIntent);
+            if (getActivity() != null) {
+                Intent homeIntent = new Intent(getActivity(), MainActivity.class);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(homeIntent);
+            }
         };
 
         btnHome.setOnClickListener(goHomeListener);
@@ -76,7 +80,7 @@ public class TicketFragment extends Fragment {
         // Làm sạch vùng chứa vé trước khi nạp dữ liệu tránh lặp lặp View
         ticketContainer.removeAllViews();
 
-        // THAY ĐỔI QUAN TRỌNG: Truy vấn phẳng đơn giản để tránh lỗi Index và lỗi lọc thời gian
+        // Truy vấn danh sách vé dựa trên userId của khách hàng đang đăng nhập
         db.collection("bookings")
                 .whereEqualTo("userId", currentUserId)
                 .get()
@@ -102,6 +106,7 @@ public class TicketFragment extends Fragment {
                             TextView ticketSeats = ticketView.findViewById(R.id.ticketSeats);
                             TextView ticketPrice = ticketView.findViewById(R.id.ticketPrice);
                             TextView ticketBookingId = ticketView.findViewById(R.id.ticketBookingId);
+                            ImageView ticketQRCode = ticketView.findViewById(R.id.ticketQRCode); // Ánh xạ ImageView QR mới bổ sung
 
                             // Đổ dữ liệu text từ Database vào
                             if (documentSnapshot.contains("movieTitle")) {
@@ -111,8 +116,19 @@ public class TicketFragment extends Fragment {
                                 ticketRoom.setText(documentSnapshot.getString("room"));
                             }
 
-                            String documentId = documentSnapshot.getId();
-                            ticketBookingId.setText("Mã HD: " + documentId);
+                            // Đọc mã hóa đơn an toàn (Lấy trường bookingId từ tài liệu)
+                            String bookingId = documentSnapshot.getString("bookingId");
+                            if (bookingId == null || bookingId.isEmpty()) {
+                                bookingId = documentSnapshot.getId(); // Dự phòng nếu trường trống thì lấy luôn DocumentId
+                            }
+                            ticketBookingId.setText("Mã HD: " + bookingId);
+
+                            // --- TỰ ĐỘNG XỬ LÝ SINH MÃ QR TẠI ĐÂY ---
+                            // Khởi tạo kích thước ma trận vuông 350x350 pixel cho ảnh QR Code mượt mà dễ quét
+                            Bitmap qrBitmap = QRCodeHelper.generateQRCode(bookingId, 350, 350);
+                            if (qrBitmap != null) {
+                                ticketQRCode.setImageBitmap(qrBitmap);
+                            }
 
                             // Xử lý ghép hiển thị chuỗi ngày giờ linh hoạt
                             String date = documentSnapshot.getString("date");
@@ -121,27 +137,30 @@ public class TicketFragment extends Fragment {
                                 if (startTime.contains(date)) {
                                     ticketShowTime.setText(startTime);
                                 } else {
-                                    ticketShowTime.setText(startTime + " (Ngày: " + date + ")");
+                                    ticketShowTime.setText(startTime + " - " + date);
                                 }
                             }
 
+                            // Đọc giá tiền đa năng và định dạng tiền tệ
                             Object priceObj = documentSnapshot.get("totalPrice");
                             if (priceObj != null) {
-                                ticketPrice.setText(priceObj.toString() + "đ");
-                            }
-
-                            // Đọc và định dạng hiển thị danh sách mảng chuỗi ghế đặt
-                            java.util.List<String> seatsList = (java.util.List<String>) documentSnapshot.get("seats");
-                            if (seatsList != null && !seatsList.isEmpty()) {
-                                StringBuilder sb = new StringBuilder();
-                                for (int i = 0; i < seatsList.size(); i++) {
-                                    sb.append(seatsList.get(i));
-                                    if (i < seatsList.size() - 1) sb.append(", ");
+                                long priceValue = 0;
+                                if (priceObj instanceof Number) {
+                                    priceValue = ((Number) priceObj).longValue();
+                                } else {
+                                    try {
+                                        priceValue = Long.parseLong(priceObj.toString().trim());
+                                    } catch (NumberFormatException e) {
+                                        priceValue = 0;
+                                    }
                                 }
-                                ticketSeats.setText(sb.toString());
+                                // Định dạng hiển thị số thành dạng tiền tệ (Ví dụ: 120,000 hoặc 120.000 tùy máy)
+                                String formattedPrice = String.format("%,d", priceValue) + "đ";
+                                ticketPrice.setText(formattedPrice);
                             } else {
-                                ticketSeats.setText("Trống");
+                                ticketPrice.setText("0đ");
                             }
+                            // =========================================================================
 
                             // Thêm view cuống vé này vào khay chứa danh sách hiển thị
                             ticketContainer.addView(ticketView);

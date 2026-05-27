@@ -3,162 +3,169 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
     app:cardBackgroundColor="#FFFFFF">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            android:id="@+id/ticketMovieTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Doreamon: Nobita và lâu đài dưới đáy biển"
-            android:textColor="#E91E63"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="12dp">
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/ticketMovieTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Doreamon: Nobita và lâu đài dưới đáy biển"
+                android:textColor="#E91E63"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Suất chiếu:"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/ticketShowTime"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Suất chiếu:"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/ticketShowTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="18:36 - 2026-05-25"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="18:36 - 2026-05-25"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phòng chiếu:"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/ticketRoom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phòng 1"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Phòng chiếu:"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/ticketRoom"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ghế đặt:"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/ticketSeats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="F4"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Phòng 1"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tổng tiền:"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/ticketPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="60,000đ"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                </LinearLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MÃ VÉ (MANG RA RẠP ĐỂ SOÁT VÉ)"
+                android:textSize="11sp"
+                android:textColor="#757575"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <ImageView
+                android:id="@+id/ticketQRCode"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:contentDescription="Mã QR vé xem phim"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/ticketBookingId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mã HD: booking_001"
+                android:textColor="#212121"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:gravity="center"
+                android:layout_marginTop="4dp" />
+
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ghế đặt:"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/ticketSeats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="F4"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tổng tiền:"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/ticketPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="60,000đ"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"
-            android:layout_marginBottom="12dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="MÃ VÉ (MANG RA RẠP ĐỂ SOÁT VÉ)"
-            android:textSize="11sp"
-            android:textColor="#757575"
-            android:gravity="center"
-            android:layout_marginBottom="8dp" />
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            android:contentDescription="Barcode Icon"
-            android:tint="#757575" />
-
-        <TextView
-            android:id="@+id/ticketBookingId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mã HD: booking_001"
-            android:textColor="#212121"
-            android:textStyle="bold"
-            android:textSize="13sp"
-            android:gravity="center"
-            android:layout_marginTop="4dp" />
-
-    </LinearLayout>
+    </ScrollView>
 </androidx.cardview.widget.CardView>

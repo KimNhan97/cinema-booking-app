@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
+import dacn.buithikimnhan.cinemabookingapp.admin.booking.AdminBookingFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.dashboard.AdminDashboardFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.movie.ManageMovieFragment;
 import dacn.buithikimnhan.cinemabookingapp.admin.account.ManageUserFragment;
@@ -30,6 +31,8 @@ public class AdminActivity extends AppCompatActivity {
 
             if (id == R.id.nav_dashboard) selectedFragment = new AdminDashboardFragment();
             else if (id == R.id.nav_movies) selectedFragment = new ManageMovieFragment();
+            else if (id == R.id.nav_bookings) selectedFragment = new AdminBookingFragment();
+            else if (id == R.id.nav_showtime) selectedFragment = new AdminBookingFragment();
             else if (id == R.id.nav_users) selectedFragment = new ManageUserFragment();
 
             if (selectedFragment != null) {

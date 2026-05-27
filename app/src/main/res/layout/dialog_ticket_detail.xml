@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CHI TIẾT VÉ ĐẶT"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView android:id="@+id/tvBookingId" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="4dp" android:text="Mã đặt vé: "/>
+    <TextView android:id="@+id/tvMovieTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="4dp" android:text="Phim: " android:textStyle="bold"/>
+    <TextView android:id="@+id/tvRoomAndSeats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="4dp" android:text="Phòng / Ghế: "/>
+    <TextView android:id="@+id/tvPriceAndStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="4dp" android:text="Tổng tiền: "/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancelTicket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hủy vé"
+            android:backgroundTint="#757575"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnCheckIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xác nhận vào rạp"
+            android:backgroundTint="#4CAF50"/>
+    </LinearLayout>
+</LinearLayout>

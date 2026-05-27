@@ -129,13 +129,19 @@ public class PaymentInfoActivity extends AppCompatActivity {
         bookingData.put("room", tvRoomName.getText().toString());
         bookingData.put("status", "booked");
 
-        // === ĐOẠN ĐÃ SỬA: Xử lý làm sạch chuỗi tiền tệ trước khi đưa lên Firebase ===
+        // === ĐOẠN ĐÃ SỬA: Chuyển hoàn toàn sang kiểu Số (Int) trước khi gửi lên Firebase ===
         String rawPrice = tvTotalPrice.getText().toString();
-        // Loại bỏ chữ "đ", dấu phẩy ",", dấu chấm "." và khoảng trắng thừa
         String cleanPrice = rawPrice.replace("đ", "")
                 .replaceAll("[.,]", "")
                 .trim();
-        bookingData.put("totalPrice", cleanPrice); // Bây giờ sẽ lưu là "120000" thay vì "120,000"
+
+        int totalPriceInt = 0;
+        try {
+            totalPriceInt = Integer.parseInt(cleanPrice); // Ép từ chuỗi "120000" thành số 120000
+        } catch (NumberFormatException e) {
+            // Đề phòng lỗi định dạng chuỗi
+        }
+        bookingData.put("totalPrice", totalPriceInt); // Lưu dạng Number chuẩn Firestore!
         // =========================================================================
 
         bookingData.put("userId", currentUserId);

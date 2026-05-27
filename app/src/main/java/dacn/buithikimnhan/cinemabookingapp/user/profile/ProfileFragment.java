@@ -12,16 +12,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
 import dacn.buithikimnhan.cinemabookingapp.auth.LoginActivity;
@@ -30,10 +29,11 @@ public class ProfileFragment extends Fragment {
 
     private ImageView imgAvatar, imgProfileCover;
     private TextView tvProfileName, tvMemberRank;
-     TextView tvCountWatched, tvCountTickets, tvCountPoints;
-    private CardView cardTicketContainer;
+    TextView tvCountWatched, tvCountTickets, tvCountPoints;
+
+    // Đã thay đổi: Sử dụng ViewPager2 để quản lý việc lướt ngang các cuống vé
+    private ViewPager2 vpTickets;
     private LinearLayout layoutEmptyTicket;
-    private TextView ticketMovieTitle, ticketShowTime, ticketRoom, ticketSeats, ticketPrice, ticketBookingId;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -62,36 +62,19 @@ public class ProfileFragment extends Fragment {
         tvCountTickets = view.findViewById(R.id.tvCountTickets);
         tvCountPoints = view.findViewById(R.id.tvCountPoints);
 
-        // Ánh xạ trực tiếp các ô thông tin trên layout Vé đục lỗ
-        cardTicketContainer = view.findViewById(R.id.cardTicketContainer);
+        // Ánh xạ thành phần lướt vé và thông báo trống
+        vpTickets = view.findViewById(R.id.vpTickets);
         layoutEmptyTicket = view.findViewById(R.id.layoutEmptyTicket);
 
-        ticketMovieTitle = view.findViewById(R.id.ticketMovieTitle);
-        ticketShowTime = view.findViewById(R.id.ticketShowTime);
-        ticketRoom = view.findViewById(R.id.ticketRoom);
-        ticketSeats = view.findViewById(R.id.ticketSeats);
-        ticketPrice = view.findViewById(R.id.ticketPrice);
-        ticketBookingId = view.findViewById(R.id.ticketBookingId);
-        //đăng xuất
+        // Sự kiện Đăng xuất
         view.findViewById(R.id.btnLogOut).setOnClickListener(v -> {
-
-            // 1. Thực hiện đăng xuất tài khoản khỏi Firebase Auth hệ thống
             FirebaseAuth.getInstance().signOut();
-
-            // Thông báo cho người dùng biết
             Toast.makeText(getContext(), "Đã đăng xuất tài khoản thành công", Toast.LENGTH_SHORT).show();
 
-            // 2. Tạo Intent để quay về màn hình Đăng nhập (LoginActivity)
             Intent intent = new Intent(getActivity(), LoginActivity.class);
-
-            // 3. Đặt cờ xóa sạch toàn bộ các Activity trước đó (Xóa MainActivity đang chạy ngầm)
-            // Giúp chặn việc người dùng nhấn nút Back trên điện thoại quay ngược lại trang cá nhân
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-            // Kích hoạt chuyển màn hình
             startActivity(intent);
 
-            // Tạo hiệu ứng chuyển cảnh mượt mà (Fade Out giao diện cũ và Fade In giao diện Login)
             if (getActivity() != null) {
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -124,73 +107,38 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
-        // 2. Dựa vào userId lấy danh sách vé trong collection "bookings"
+        // 2. Lấy toàn bộ danh sách vé có trạng thái "booked" của User để truyền vào ViewPager2 lướt ngang
         db.collection("bookings")
                 .whereEqualTo("userId", uid)
-                .whereEqualTo("status", "booked") // Chỉ lấy vé đã thanh toán/đặt thành công
+                .whereEqualTo("status", "booked")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
 
-                        // Cập nhật tổng số lượng vé đã đặt lên màn hình cá nhân
+                        // Cập nhật số lượng vé đặt lên thông số "Số Vé Mua"
                         int totalTickets = queryDocumentSnapshots.size();
                         tvCountTickets.setText(String.valueOf(totalTickets));
 
-                        // Lấy ra tài liệu vé đầu tiên (Mới nhất) để điền thẳng thông tin lên UI
-                        DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                        // Khởi tạo Adapter liên kết mảng dữ liệu vé với ViewPager2
+                        TicketPagerAdapter pagerAdapter = new TicketPagerAdapter(queryDocumentSnapshots.getDocuments());
+                        vpTickets.setAdapter(pagerAdapter);
 
-                        // Gán các trường Text cơ bản
-                        ticketMovieTitle.setText(doc.getString("movieTitle"));
-                        ticketShowTime.setText(doc.getString("startTime"));
-                        ticketRoom.setText(doc.getString("room"));
-                        ticketBookingId.setText("Mã HD: " + doc.getString("bookingId"));
+                        // Cấu hình lướt mượt: Cho phép load đệm sang 2 bên
+                        vpTickets.setOffscreenPageLimit(1);
 
-                        // --- XỬ LÝ TRƯỜNG TOTALPRICE KIỂU INT / LONG AN TOÀN ---
-                        try {
-                            Long price = doc.getLong("totalPrice");
-                            if (price != null) {
-                                // Định dạng hiển thị số phân tách hàng nghìn (Ví dụ: 60,000đ)
-                                ticketPrice.setText(String.format("%,dđ", price));
-                            } else {
-                                ticketPrice.setText("0đ");
-                            }
-                        } catch (Exception e) {
-                            // Trường hợp phòng hờ nếu có vé cũ trong DB vẫn lưu kiểu chuỗi String
-                            String stringPrice = doc.getString("totalPrice");
-                            if (stringPrice != null) {
-                                ticketPrice.setText(stringPrice.contains("đ") ? stringPrice : stringPrice + "đ");
-                            } else {
-                                ticketPrice.setText("0đ");
-                            }
-                        }
-
-                        // --- XỬ LÝ TRƯỜNG SEATS (GHẾ ĐẶT) AN TOÀN ---
-                        Object seatsObj = doc.get("seats");
-                        if (seatsObj instanceof List) {
-                            // Nếu Firestore lưu dạng mảng: ["F4", "F5"] -> Chuyển thành chuỗi "F4, F5"
-                            List<String> listSeats = (List<String>) seatsObj;
-                            ticketSeats.setText(String.join(", ", listSeats));
-                        } else if (seatsObj != null) {
-                            // Nếu Firestore lưu dạng chuỗi văn bản: "F4"
-                            ticketSeats.setText(seatsObj.toString());
-                        } else {
-                            ticketSeats.setText("-");
-                        }
-
-                        // Đổi trạng thái hiển thị: Hiện vé - Ẩn thông báo trống
-                        cardTicketContainer.setVisibility(View.VISIBLE);
+                        // Hiển thị khung lướt vé, ẩn layout trống
+                        vpTickets.setVisibility(View.VISIBLE);
                         layoutEmptyTicket.setVisibility(View.GONE);
 
                     } else {
-                        // Nếu tài khoản chưa từng đặt vé nào
-                        cardTicketContainer.setVisibility(View.GONE);
+                        // Nếu không có vé nào
+                        vpTickets.setVisibility(View.GONE);
                         layoutEmptyTicket.setVisibility(View.VISIBLE);
                         tvCountTickets.setText("0");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // Xử lý khi mất mạng hoặc lỗi kết nối Firestore
-                    cardTicketContainer.setVisibility(View.GONE);
+                    vpTickets.setVisibility(View.GONE);
                     layoutEmptyTicket.setVisibility(View.VISIBLE);
                     Toast.makeText(getContext(), "Không thể tải dữ liệu vé", Toast.LENGTH_SHORT).show();
                 });

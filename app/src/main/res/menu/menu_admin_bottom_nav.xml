@@ -9,7 +9,7 @@
         android:icon="@android:drawable/ic_menu_slideshow"
         android:title="Phim" />
     <item
-        android:id="@+id/nav_showtimes"
+        android:id="@+id/nav_showtime"
         android:icon="@android:drawable/ic_menu_my_calendar"
         android:title="Lịch Chiếu" />
     <item
