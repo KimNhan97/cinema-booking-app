@@ -42,7 +42,8 @@ Màn hình home của app_ch hoàn thiện:
 <img width="621" height="1338" alt="image" src="https://github.com/user-attachments/assets/08109c86-9b7b-427a-9dec-7c453aed3e17" />
 <img width="617" height="1331" alt="image" src="https://github.com/user-attachments/assets/6fecf515-ba1f-4066-b627-f666aab0fc48" />
 <img width="622" height="1335" alt="image" src="https://github.com/user-attachments/assets/311c0f48-42b2-4571-9827-c13188fbffd2" />
-<img width="633" height="1334" alt="image" src="https://github.com/user-attachments/assets/4d8c25f7-bf7d-4e80-b7ff-0f0a32817b55" />
+<img width="631" height="1335" alt="image" src="https://github.com/user-attachments/assets/54470fd3-36a7-4bd1-88bd-5a21eb8ac73a" />
+
 
 
 
