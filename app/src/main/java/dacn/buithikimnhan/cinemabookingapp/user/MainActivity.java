@@ -36,18 +36,18 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = null;
             int id = item.getItemId();
 
-            // Rẽ nhánh chuyển đổi giữa các màn hình chức năng của User
+            // 3. Rẽ nhánh chuyển đổi giữa các màn hình chức năng của User
             if (id == R.id.nav_home) {
-                fragment = new HomeFragment();         // Màn hình chính xem danh sách phim
+                fragment = new HomeFragment();
             } else if (id == R.id.nav_favorites) {
-                fragment = new FavoriteFragment();     // Danh sách phim yêu thích
+                fragment = new FavoriteFragment();
             } else if (id == R.id.nav_tickets) {
-                fragment = new TicketFragment();       // Lịch sử các đơn vé đã mua
+                fragment = new TicketFragment();
             } else if (id == R.id.nav_profile) {
-                fragment = new ProfileFragment();      // Trang cá nhân & thông tin thành viên
+                fragment = new ProfileFragment();
             }
 
-            // Thực hiện thay thế Fragment tương ứng lên giao diện
+            // 4. Thực hiện thay thế Fragment tương ứng lên giao diện
             if (fragment != null) {
                 loadFragment(fragment);
                 return true;
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadFragment(Fragment fragment) {
-        // Kiểm tra an toàn trạng thái Lifecycle để tránh văng ứng dụng khi thao tác nhanh
         if (!isFinishing() && !isDestroyed()) {
             getSupportFragmentManager()
                     .beginTransaction()

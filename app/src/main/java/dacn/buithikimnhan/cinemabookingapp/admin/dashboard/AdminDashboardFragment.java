@@ -46,7 +46,7 @@ public class AdminDashboardFragment extends Fragment {
 
     private View cardRevenue, cardTickets, cardUsers, cardMovies;
     private TextView tvRevenue, tvTicketsSold, tvTotalUsers, tvActiveMovies;
-    private AppCompatButton btnAdminLogOut;
+     AppCompatButton btnAdminLogOut;
 
     RecyclerView rvHotMovies;
     RecyclerView rvSessions;
@@ -54,8 +54,6 @@ public class AdminDashboardFragment extends Fragment {
 
     private List<Movie> hotMovieList;
     private HotMovieAdapter hotMovieAdapter;
-
-    // Danh sách và adapter cho suất chiếu hôm nay
     private List<Showtime> showtimeList;
     private DashboardShowtimeAdapter showtimeAdapter;
 
@@ -255,12 +253,10 @@ public class AdminDashboardFragment extends Fragment {
                     }
                 });
 
-        // 4. Lấy dữ liệu Suất chiếu hôm nay - DO DB ĐÃ CÓ "movieName" NÊN ĐỌC THẲNG LUÔN
-        // Đảm bảo định dạng là "yyyy/MM/dd" có dấu gạch chéo trùng với Firestore
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
         String todayStr = sdf.format(new Date());
 
-        Log.d("AdminDashboard", "Ngày hôm nay hệ thống quét: " + todayStr); // Bạn có thể xem Logcat xem máy quét đúng ngày không
+        Log.d("AdminDashboard", "Ngày hôm nay hệ thống quét: " + todayStr);
 
         db.collection("showtimes")
                 .whereEqualTo("date", todayStr)
@@ -272,25 +268,63 @@ public class AdminDashboardFragment extends Fragment {
 
                     if (showtimeSnapshots != null) {
                         showtimeList.clear();
+
+                        // Biến đếm để theo dõi tiến trình load tên phim từ collection phụ
+                        final int totalShowtimes = showtimeSnapshots.size();
+                        if (totalShowtimes == 0) {
+                            showtimeAdapter.notifyDataSetChanged();
+                            return;
+                        }
+
                         for (QueryDocumentSnapshot doc : showtimeSnapshots) {
                             try {
                                 Showtime showtime = doc.toObject(Showtime.class);
                                 if (showtime.getShowtimeId() == null) {
                                     showtime.setShowtimeId(doc.getId());
                                 }
-                                showtimeList.add(showtime);
+
+                                // Tiến hành quét tìm tên phim dựa trên mã movieId của suất chiếu
+                                String mId = doc.getString("movieId");
+                                if (mId != null && !mId.isEmpty()) {
+                                    db.collection("movies").document(mId).get()
+                                            .addOnSuccessListener(movieDoc -> {
+                                                if (movieDoc.exists()) {
+                                                    String actualTitle = movieDoc.getString("title");
+                                                    // Set trực tiếp tên phim thật vào thuộc tính ảo để cung cấp cho Adapter đọc
+                                                    showtime.setMovieName(actualTitle);
+                                                } else {
+                                                    showtime.setMovieName("Phim không tồn tại hoặc đã bị xóa");
+                                                }
+
+                                                // Thêm vào danh sách và sắp xếp cập nhật lại UI đồng bộ
+                                                if (!showtimeList.contains(showtime)) {
+                                                    showtimeList.add(showtime);
+                                                }
+
+                                                // Thực hiện sắp xếp tăng dần theo giờ chiếu khi một item nạp xong tên phim
+                                                Collections.sort(showtimeList, (s1, s2) -> {
+                                                    if (s1.getStartTime() == null || s2.getStartTime() == null) return 0;
+                                                    return s1.getStartTime().compareTo(s2.getStartTime());
+                                                });
+                                                showtimeAdapter.notifyDataSetChanged();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                showtime.setMovieName("Lỗi tải tên phim");
+                                                if (!showtimeList.contains(showtime)) {
+                                                    showtimeList.add(showtime);
+                                                }
+                                                showtimeAdapter.notifyDataSetChanged();
+                                            });
+                                } else {
+                                    showtime.setMovieName("Mã phim trống");
+                                    showtimeList.add(showtime);
+                                    showtimeAdapter.notifyDataSetChanged();
+                                }
+
                             } catch (Exception e) {
                                 Log.e(TAG, "Lỗi xử lý gán dữ liệu Showtime: " + doc.getId(), e);
                             }
                         }
-
-                        // Sắp xếp suất chiếu tăng dần theo thời gian bắt đầu
-                        Collections.sort(showtimeList, (s1, s2) -> {
-                            if (s1.getStartTime() == null || s2.getStartTime() == null) return 0;
-                            return s1.getStartTime().compareTo(s2.getStartTime());
-                        });
-
-                        showtimeAdapter.notifyDataSetChanged();
                     }
                 });
     }
@@ -370,7 +404,5 @@ public class AdminDashboardFragment extends Fragment {
                 imgPoster = itemView.findViewById(R.id.imgPoster);
             }
         }
-
     }
-
 }

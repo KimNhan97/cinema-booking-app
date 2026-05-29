@@ -37,32 +37,26 @@ public class DashboardShowtimeAdapter extends RecyclerView.Adapter<DashboardShow
 
         Showtime s = list.get(position);
 
-        // ===== TÊN PHIM =====
         holder.tvMovie.setText(
                 s.getMovieName() != null
                         ? s.getMovieName()
                         : "Đang tải tên phim..."
         );
 
-        // ===== PHÒNG =====
         holder.tvRoomName.setText("Phòng: " + s.getRoom());
 
-        // ===== NGÀY CHIẾU =====
         holder.tvShowDate.setText("Ngày chiếu: " + s.getDate());
 
-        // ===== GIỜ CHIẾU =====
         holder.tvShowTimeRange.setText(
                 s.getStartTime() + " - " + s.getEndTime()
         );
 
-        // ===== TRẠNG THÁI =====
         if (s.getStatus() != null) {
             holder.tvStatusBadge.setText(s.getStatus().toUpperCase());
         } else {
             holder.tvStatusBadge.setText("UNKNOWN");
         }
 
-        // ===== GHẾ =====
         int availableSeats = s.getAvailableSeats();
         int totalSeats = s.getTotalSeats();
 
@@ -70,7 +64,6 @@ public class DashboardShowtimeAdapter extends RecyclerView.Adapter<DashboardShow
                 availableSeats + " / " + totalSeats
         );
 
-        // Tính phần trăm progress
         int progress = 0;
 
         if (totalSeats > 0) {
@@ -84,10 +77,6 @@ public class DashboardShowtimeAdapter extends RecyclerView.Adapter<DashboardShow
     public int getItemCount() {
         return list.size();
     }
-
-    // =========================================================
-    // VIEW HOLDER
-    // =========================================================
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 

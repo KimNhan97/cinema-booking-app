@@ -36,9 +36,9 @@ import dacn.buithikimnhan.cinemabookingapp.data.Movie;
 public class ManageMovieFragment extends Fragment {
 
     private FirebaseFirestore db;
-    private RecyclerView rvAdminMovies;
-    private EditText edtSearchMovie;
-    private FloatingActionButton fabAddMovie;
+     RecyclerView rvAdminMovies;
+     EditText edtSearchMovie;
+     FloatingActionButton fabAddMovie;
 
     private AdminMovieAdapter adapter;
     private final List<Movie> movieList = new ArrayList<>();
@@ -53,7 +53,6 @@ public class ManageMovieFragment extends Fragment {
         edtSearchMovie = view.findViewById(R.id.edtSearchMovie);
         fabAddMovie = view.findViewById(R.id.fabAddMovie);
 
-        // Cài đặt hiển thị danh sách dạng cột dọc giống ListView
         rvAdminMovies.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AdminMovieAdapter(getContext(), movieList);
         rvAdminMovies.setAdapter(adapter);
@@ -112,7 +111,7 @@ public class ManageMovieFragment extends Fragment {
         Button btnCancel = dialogView.findViewById(R.id.dialogBtnCancel);
         Button btnSave = dialogView.findViewById(R.id.dialogBtnSave);
 
-        rbNow.setChecked(true); // Mặc định chọn đang chiếu khi thêm mới
+        rbNow.setChecked(true);
 
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
@@ -144,7 +143,7 @@ public class ManageMovieFragment extends Fragment {
             newMovie.put("bannerUrl", edtBanner.getText().toString().trim());
             newMovie.put("description", edtDesc.getText().toString().trim());
 
-            // Khởi tạo thông số đánh giá ban đầu
+
             newMovie.put("totalRating", 0.0);
             newMovie.put("ratingCount", 0);
 

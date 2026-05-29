@@ -39,7 +39,7 @@
             android:hint="Tìm phim / phòng / giờ..."
             android:paddingHorizontal="16dp"
             android:textSize="14sp"
-            android:textColor="#121111"
+            android:textColor="#F6F2F2"
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="10dp" />
 

@@ -15,7 +15,6 @@ public class Movie implements Serializable {
     String status;
     private double averageRating = 0.0;
     private int ratingCount = 0;
-    // SỬA ĐỔI: Chuyển kiểu dữ liệu từ int sang double để chứa được số sao lẻ (ví dụ: 4.5)
     private double totalRating = 0.0;
 
     public Movie() {

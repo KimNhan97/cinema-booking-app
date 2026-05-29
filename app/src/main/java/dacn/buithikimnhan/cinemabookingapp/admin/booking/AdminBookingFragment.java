@@ -115,7 +115,6 @@ public class AdminBookingFragment extends Fragment {
     private void showTicketDetailDialog(Booking bookingData) {
         if (getContext() == null || bookingData == null) return;
 
-        // Sử dụng AlertDialog.Builder để giải quyết vấn đề hiển thị chiều rộng Wrap_Content/Match_Parent
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_ticket_detail, null);
         builder.setView(dialogView);
@@ -129,7 +128,7 @@ public class AdminBookingFragment extends Fragment {
 
         String id = bookingData.getBookingId();
         String title = bookingData.getMovieTitle();
-        String room = bookingData.getRoom(); // Đối ứng chính xác với thuộc tính 'room' lưu trên Firestore
+        String room = bookingData.getRoom();
         String startTime = bookingData.getStartTime();
         String status = bookingData.getStatus();
         long price = bookingData.getTotalPrice();
@@ -137,12 +136,10 @@ public class AdminBookingFragment extends Fragment {
 
         String seatsString = (seats != null && !seats.isEmpty()) ? String.join(", ", seats) : "Trống";
 
-        // Gán dữ liệu trực quan đi kèm nhãn tiêu đề để tránh bị trống thông tin
         tvBookingId.setText("Mã đặt vé: " + (id != null ? id : "N/A"));
         tvMovieTitle.setText("Phim: " + (title != null ? title : "N/A"));
         tvRoomAndSeats.setText("Phòng: " + (room != null ? room : "N/A") + " | Giờ: " + (startTime != null ? startTime : "N/A") + " | Ghế: [" + seatsString + "]");
 
-        // Định dạng lại hiển thị số tiền theo tiền tệ Việt Nam (VND)
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         String formattedPrice = currencyFormat.format(price);
 
@@ -156,7 +153,6 @@ public class AdminBookingFragment extends Fragment {
         }
         tvPriceAndStatus.setText("Tổng tiền: " + formattedPrice + " | Trạng thái: " + displayStatus);
 
-        // Ẩn hoàn toàn các nút chức năng nếu vé đã hoàn tất soát vé hoặc đã bị hủy trước đó
         if ("checked_in".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status)) {
             btnCheckIn.setVisibility(View.GONE);
             btnCancelTicket.setVisibility(View.GONE);
@@ -164,7 +160,6 @@ public class AdminBookingFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
-            // Đặt background trong suốt để bo góc layout custom (.xml) không bị lồi nền trắng vuông bên dưới
             dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
 

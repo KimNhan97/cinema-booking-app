@@ -24,14 +24,14 @@ import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
 
 public class SearchActivity extends AppCompatActivity {
 
-    private EditText edtSearch;
+     EditText edtSearch;
     private RecyclerView rvSearchMovies;
     private CardView layoutEmptyState;
-    private TextView tvCancel;
+     TextView tvCancel;
 
     private MovieAdapter adapter;
-    private final List<Movie> movieList = new ArrayList<>();     // Lưu toàn bộ danh sách gốc từ DB
-    private final List<Movie> filteredList = new ArrayList<>();  // Danh sách hiển thị sau lọc
+    private final List<Movie> movieList = new ArrayList<>();
+    private final List<Movie> filteredList = new ArrayList<>();
 
     private FirebaseFirestore db;
 
@@ -52,13 +52,13 @@ public class SearchActivity extends AppCompatActivity {
         rvSearchMovies.setLayoutManager(new GridLayoutManager(this, 2));
         rvSearchMovies.setAdapter(adapter);
 
-        // Tải trước dữ liệu phim về bộ nhớ đệm ẩn
+        // 1. Tải trước dữ liệu phim về bộ nhớ đệm ẩn
         loadMovies();
 
-        // Khởi tạo trạng thái giao diện ban đầu (Trống hoàn toàn)
+        // 2. Khởi tạo trạng thái giao diện ban đầu (Trống hoàn toàn)
         updateUiState("");
 
-        // Sự kiện xử lý nút Hủy - Quay lại màn hình Trang Chủ (Đã sửa lỗi gọi Adapter)
+        // 3. Sự kiện xử lý nút Hủy - Quay lại màn hình Trang Chủ (Đã sửa lỗi gọi Adapter)
         tvCancel.setOnClickListener(v -> {
             // Đã sửa đổi: Thay thế HomeMainAdapter thành MainActivity (hoặc HomeActivity tùy dự án của bạn)
             android.content.Intent intent = new android.content.Intent(SearchActivity.this, MainActivity.class);
@@ -67,7 +67,7 @@ public class SearchActivity extends AppCompatActivity {
             finish();
         });
 
-        // Theo dõi thanh tìm kiếm thời gian thực
+        // 4. Theo dõi thanh tìm kiếm thời gian thực
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -93,7 +93,7 @@ public class SearchActivity extends AppCompatActivity {
                         Movie movie = doc.toObject(Movie.class);
                         movieList.add(movie);
                     }
-                    // Lúc mới khởi động, ô tìm kiếm đang trống nên không ép dữ liệu tràn lan vào list lọc
+
                     filteredList.clear();
                     adapter.notifyDataSetChanged();
                 });
@@ -110,7 +110,6 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void filterMovies(String keyword) {
-        // Sử dụng một danh sách tạm thời giúp luồng tải ảnh không bị ngắt quãng giữa chừng
         List<Movie> tempList = new ArrayList<>();
 
         if (!keyword.isEmpty()) {
@@ -121,8 +120,6 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }
         }
-
-        // Đẩy đồng bộ cập nhật lên UI Thread bắt buộc để vẽ lại ảnh ngay lập tức
         runOnUiThread(() -> {
             filteredList.clear();
             filteredList.addAll(tempList);

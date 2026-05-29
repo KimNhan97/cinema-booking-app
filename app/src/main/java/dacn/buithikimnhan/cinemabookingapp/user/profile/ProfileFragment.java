@@ -36,7 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
@@ -45,7 +47,7 @@ import dacn.buithikimnhan.cinemabookingapp.data.User;
 
 public class ProfileFragment extends Fragment {
 
-    private ImageView imgAvatar, imgProfileCover, btnProfileManage, btnProfileBack;
+     ImageView imgAvatar, imgProfileCover, btnProfileManage, btnProfileBack;
     private TextView tvProfileName, tvMemberRank;
     private TextView tvCountWatched, tvCountTickets, tvCountPoints;
 
@@ -311,28 +313,70 @@ public class ProfileFragment extends Fragment {
 
         db.collection("bookings")
                 .whereEqualTo("userId", uid)
-                .whereEqualTo("status", "booked")
+                .whereEqualTo("status", "checked_in")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        int totalTickets = queryDocumentSnapshots.size();
-                        tvCountTickets.setText(String.valueOf(totalTickets));
-
-                        TicketPagerAdapter pagerAdapter = new TicketPagerAdapter(queryDocumentSnapshots.getDocuments());
-                        vpTickets.setAdapter(pagerAdapter);
-                        vpTickets.setOffscreenPageLimit(1);
-
-                        vpTickets.setVisibility(View.VISIBLE);
-                        layoutEmptyTicket.setVisibility(View.GONE);
+                    if (!isAdded()) return;
+                    if (queryDocumentSnapshots != null) {
+                        int watchedCount = queryDocumentSnapshots.size();
+                        tvCountWatched.setText(String.valueOf(watchedCount));
                     } else {
-                        vpTickets.setVisibility(View.GONE);
-                        layoutEmptyTicket.setVisibility(View.VISIBLE);
-                        tvCountTickets.setText("0");
+                        tvCountWatched.setText("0");
                     }
                 })
                 .addOnFailureListener(e -> {
-                    vpTickets.setVisibility(View.GONE);
-                    layoutEmptyTicket.setVisibility(View.VISIBLE);
+                    if (isAdded()) tvCountWatched.setText("0");
                 });
+
+        db.collection("bookings")
+                .whereEqualTo("userId", uid)
+                .whereEqualTo("status", "booked")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
+
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+
+                        List<DocumentSnapshot> validBookedTickets = new ArrayList<>();
+
+                        for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                            String currentStatus = doc.getString("status");
+
+                            // Bảo mật logic: Nếu có bất kỳ vé nào khác trạng thái booked hoặc bị null thì không cho hiện
+                            if (currentStatus == null || !currentStatus.equalsIgnoreCase("booked")) {
+                                continue;
+                            }
+                            validBookedTickets.add(doc);
+                        }
+
+                        // Kiểm tra lại danh sách vé booked sau khi lọc
+                        if (!validBookedTickets.isEmpty()) {
+                            int totalTickets = validBookedTickets.size();
+                            tvCountTickets.setText(String.valueOf(totalTickets)); // Cập nhật đúng số lượng vé chưa đi xem
+
+                            TicketPagerAdapter pagerAdapter = new TicketPagerAdapter(validBookedTickets);
+                            vpTickets.setAdapter(pagerAdapter);
+                            vpTickets.setOffscreenPageLimit(1);
+
+                            vpTickets.setVisibility(View.VISIBLE);
+                            layoutEmptyTicket.setVisibility(View.GONE);
+                        } else {
+                            handleEmptyTickets();
+                        }
+                    } else {
+                        handleEmptyTickets();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) {
+                        handleEmptyTickets();
+                    }
+                });
+    }
+
+    private void handleEmptyTickets() {
+        vpTickets.setVisibility(View.GONE);
+        layoutEmptyTicket.setVisibility(View.VISIBLE);
+        tvCountTickets.setText("0");
     }
 }

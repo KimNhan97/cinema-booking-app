@@ -5,28 +5,37 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.firestore.*;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
 import dacn.buithikimnhan.cinemabookingapp.R;
 import dacn.buithikimnhan.cinemabookingapp.data.Showtime;
 
 public class AdminShowTimeFragment extends Fragment {
 
     private RecyclerView rvShowtimes;
-    EditText edtSearch;
+     EditText edtSearch;
     private Spinner spinnerFilter;
     private FirebaseFirestore db;
     private List<Showtime> fullShowtimeList;
@@ -34,6 +43,7 @@ public class AdminShowTimeFragment extends Fragment {
     private ShowtimeAdapter adapter;
     private String currentFilterStatus = "TẤT CẢ";
     private String currentSearchKeyword = "";
+    private int selectedMovieDurationMinutes = 120;
 
     @Nullable
     @Override
@@ -68,7 +78,7 @@ public class AdminShowTimeFragment extends Fragment {
 
     private void setupSpinnerFilter() {
         String[] statuses = {"TẤT CẢ", "open", "close"};
-        ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, statuses);
+        ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, statuses);
         spinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerFilter.setAdapter(spinAdapter);
         spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -87,11 +97,12 @@ public class AdminShowTimeFragment extends Fragment {
             fullShowtimeList.clear();
             for (QueryDocumentSnapshot doc : value) {
                 Showtime showtime = doc.toObject(Showtime.class);
-                showtime.setShowtimeId(doc.getId());
-                showtime.setMovieName("Đang tải..."); // Trạng thái chờ ban đầu
-
-                fetchMovieNameAndPopulate(showtime);
-                fullShowtimeList.add(showtime);
+                if (showtime != null) {
+                    showtime.setShowtimeId(doc.getId());
+                    showtime.setMovieName("Đang tải...");
+                    fetchMovieNameAndPopulate(showtime);
+                    fullShowtimeList.add(showtime);
+                }
             }
             applyFilterAndSearch();
         });
@@ -103,18 +114,42 @@ public class AdminShowTimeFragment extends Fragment {
             applyFilterAndSearch();
             return;
         }
+
         db.collection("movies").document(showtime.getMovieId()).get().addOnSuccessListener(docSnap -> {
             if (docSnap.exists()) {
                 String name = docSnap.getString("name");
                 if (name == null) name = docSnap.getString("title");
-                showtime.setMovieName(name != null ? name : showtime.getMovieId());
+                showtime.setMovieName(name != null ? name : "Chưa đặt tên");
             } else {
-                showtime.setMovieName("ID: " + showtime.getMovieId());
+                showtime.setMovieName("ID cũ: " + showtime.getMovieId());
             }
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
-            }
+            applyFilterAndSearch();
         });
+
+        db.collection("showtimes").document(showtime.getShowtimeId()).collection("seats")
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    int schemaTotalSeats = 81;
+                    int bookedCount = 0;
+
+                    if (querySnapshots != null && !querySnapshots.isEmpty()) {
+                        schemaTotalSeats = querySnapshots.size();
+                        for (QueryDocumentSnapshot doc : querySnapshots) {
+                            String seatStatus = doc.getString("status");
+                            if (seatStatus != null && seatStatus.equalsIgnoreCase("booked")) {
+                                bookedCount++;
+                            }
+                        }
+                    }
+
+                    int realAvailable = schemaTotalSeats - bookedCount;
+                    showtime.setTotalSeats(schemaTotalSeats);
+                    showtime.setAvailableSeats(Math.max(realAvailable, 0));
+
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     private void applyFilterAndSearch() {
@@ -126,15 +161,19 @@ public class AdminShowTimeFragment extends Fragment {
             String movieText = item.getMovieName() != null ? item.getMovieName().toLowerCase() : "";
             String roomText = item.getRoom() != null ? item.getRoom().toLowerCase() : "";
             String timeText = item.getStartTime() != null ? item.getStartTime().toLowerCase() : "";
+            String dateText = item.getDate() != null ? item.getDate().toLowerCase() : "";
 
+            // Thêm bộ lọc so khớp tìm kiếm mở rộng cho cả chuỗi thông tin ngày tháng năm
             boolean matchesSearch = movieText.contains(currentSearchKeyword)
                     || roomText.contains(currentSearchKeyword)
-                    || timeText.contains(currentSearchKeyword);
+                    || timeText.contains(currentSearchKeyword)
+                    || dateText.contains(currentSearchKeyword);
 
             if (matchesStatus && matchesSearch) {
                 filteredList.add(item);
             }
         }
+
         if (adapter == null) {
             adapter = new ShowtimeAdapter(filteredList);
             rvShowtimes.setAdapter(adapter);
@@ -143,7 +182,6 @@ public class AdminShowTimeFragment extends Fragment {
         }
     }
 
-    // --- HÀM TRỢ GIÚP CHUYỂN ĐỔI ĐỊNH DẠNG "HH:mm" SANG SỐ PHÚT ĐỂ SO SÁNH TOÁN HỌC ---
     private int convertTimeToMinutes(String timeStr) {
         try {
             String[] parts = timeStr.trim().split(":");
@@ -151,12 +189,12 @@ public class AdminShowTimeFragment extends Fragment {
             int minutes = Integer.parseInt(parts[1]);
             return hours * 60 + minutes;
         } catch (Exception e) {
-            return -1; // Định dạng thời gian không hợp lệ
+            return -1;
         }
     }
 
     private void showAddEditDialog(@Nullable Showtime showtime) {
-        Dialog dialog = new Dialog(getContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth);
+        Dialog dialog = new Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_edit_showtime, null);
         dialog.setContentView(view);
 
@@ -171,13 +209,16 @@ public class AdminShowTimeFragment extends Fragment {
         RadioButton radOpen = view.findViewById(R.id.radOpen);
         RadioButton radClose = view.findViewById(R.id.radClose);
 
+        edtEnd.setEnabled(false);
+        edtEnd.setFocusable(false);
+        edtEnd.setHint("Hệ thống tự tính toán...");
+
         List<MovieSpinnerItem> movieSpinnerList = new ArrayList<>();
-        ArrayAdapter<MovieSpinnerItem> movieSpinnerAdapter = new ArrayAdapter<>(getContext(),
+        ArrayAdapter<MovieSpinnerItem> movieSpinnerAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, movieSpinnerList);
         movieSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMovie.setAdapter(movieSpinnerAdapter);
 
-        // Đổ dữ liệu text trước
         if (showtime != null) {
             title.setText("CHỈNH SỬA THÔNG TIN SUẤT CHIẾU");
             edtRoom.setText(showtime.getRoom());
@@ -186,20 +227,34 @@ public class AdminShowTimeFragment extends Fragment {
             edtEnd.setText(showtime.getEndTime());
             edtAvail.setText(String.valueOf(showtime.getAvailableSeats()));
             edtTotal.setText(String.valueOf(showtime.getTotalSeats()));
-            if ("open".equals(showtime.getStatus())) radOpen.setChecked(true);
+            if ("open".equalsIgnoreCase(showtime.getStatus())) radOpen.setChecked(true);
             else radClose.setChecked(true);
         } else {
+            title.setText("THÊM SUẤT CHIẾU MỚI");
             radOpen.setChecked(true);
+            edtAvail.setText("81");
+            edtTotal.setText("81");
         }
 
-        // Tải danh sách phim và gán chính xác vị trí Spinner kể cả khi đang sửa
         db.collection("movies").get().addOnSuccessListener(queryDocumentSnapshots -> {
             movieSpinnerList.clear();
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                 String mName = doc.getString("name");
                 if (mName == null) mName = doc.getString("title");
                 if (mName == null) mName = doc.getId();
-                movieSpinnerList.add(new MovieSpinnerItem(doc.getId(), mName));
+
+                int duration = 120;
+                if (doc.contains("duration")) {
+                    Object durObj = doc.get("duration");
+                    if (durObj instanceof Long) {
+                        duration = ((Long) durObj).intValue();
+                    } else if (durObj instanceof String) {
+                        try {
+                            duration = Integer.parseInt(((String) durObj).replaceAll("[^0-9]", ""));
+                        } catch (Exception e) { duration = 120; }
+                    }
+                }
+                movieSpinnerList.add(new MovieSpinnerItem(doc.getId(), mName, duration));
             }
             movieSpinnerAdapter.notifyDataSetChanged();
 
@@ -213,72 +268,115 @@ public class AdminShowTimeFragment extends Fragment {
             }
         });
 
+        spinnerMovie.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                MovieSpinnerItem selectedItem = movieSpinnerList.get(position);
+                selectedMovieDurationMinutes = selectedItem.getDuration();
+                calculateEndTime(edtStart.getText().toString(), edtEnd);
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        edtStart.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                calculateEndTime(s.toString(), edtEnd);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
         view.findViewById(R.id.btnDialogCancel).setOnClickListener(v -> dialog.dismiss());
         view.findViewById(R.id.btnDialogConfirm).setOnClickListener(v -> {
             if (spinnerMovie.getSelectedItem() == null) {
-                Toast.makeText(getContext(), "Đang tải dữ liệu phim...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng đợi dữ liệu phim!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             String mid = ((MovieSpinnerItem) spinnerMovie.getSelectedItem()).getId();
             String room = edtRoom.getText().toString().trim();
-            String date = edtDate.getText().toString().trim();
+            String rawDate = edtDate.getText().toString().trim();
             String start = edtStart.getText().toString().trim();
             String end = edtEnd.getText().toString().trim();
-            String availStr = edtAvail.getText().toString().trim();
-            String totalStr = edtTotal.getText().toString().trim();
             String status = radOpen.isChecked() ? "open" : "close";
 
-            if(room.isEmpty() || date.isEmpty() || start.isEmpty() || end.isEmpty() || availStr.isEmpty() || totalStr.isEmpty()){
-                Toast.makeText(getContext(), "Vui lòng nhập đủ thông tin!", Toast.LENGTH_SHORT).show();
+            if (room.isEmpty() || rawDate.isEmpty() || start.isEmpty() || end.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin mẫu!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Chuyển đổi mốc thời gian nhập vào sang số phút
+            // Đồng bộ chuyển đổi ký tự phân tách ngày thành chuẩn gạch chéo
+            String formattedDate = rawDate.replace("-", "/");
+            Date parsedDate;
+            try {
+                SimpleDateFormat inputParser;
+                if (formattedDate.matches("\\d{4}/\\d{2}/\\d{2}")) {
+                    inputParser = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
+                } else {
+                    inputParser = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                }
+                inputParser.setLenient(false);
+                parsedDate = inputParser.parse(formattedDate);
+
+                SimpleDateFormat targetFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                formattedDate = targetFormatter.format(parsedDate);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Ngày sai định dạng! Vui lòng nhập chuẩn Ngày/Tháng/Năm", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Calendar calToday = Calendar.getInstance();
+            calToday.set(Calendar.HOUR_OF_DAY, 0);
+            calToday.set(Calendar.MINUTE, 0);
+            calToday.set(Calendar.SECOND, 0);
+            calToday.set(Calendar.MILLISECOND, 0);
+            Date todayDate = calToday.getTime();
+
+            if (parsedDate.before(todayDate)) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Ngày không hợp lệ! 📅")
+                        .setMessage("Không thể xếp lịch hoặc lưu suất chiếu cho một ngày thuộc về quá khứ (" + formattedDate + ").")
+                        .setPositiveButton("SỬA LẠI NGÀY", null)
+                        .show();
+                return;
+            }
+
             int newStartMin = convertTimeToMinutes(start);
             int newEndMin = convertTimeToMinutes(end);
 
             if (newStartMin == -1 || newEndMin == -1) {
-                Toast.makeText(getContext(), "Thời gian không đúng định dạng HH:mm (VD: 14:30)!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Định dạng giờ (HH:mm) không hợp lệ!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (newStartMin >= newEndMin) {
-                Toast.makeText(getContext(), "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc!", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            // ================= KHU VỰC THUẬT TOÁN: KIỂM TRA TRÙNG PHÒNG + NGÀY + GIỜ CHIẾU CHUẨN HÓA =================
             boolean isOverlapped = false;
             String conflictMovie = "";
             String conflictTimeRange = "";
-
-            // 1. Chuẩn hóa chuỗi dữ liệu đầu vào người dùng vừa điền
             String cleanInputRoom = room.trim().replace(" ", "").toLowerCase();
-            String cleanInputDate = date.trim().replace("/", "-"); // Ép hết dấu gạch chéo thành gạch ngang
+            int CLEANUP_BUFFER = 30; // 30 phút dọn dẹp rạp
 
             for (Showtime existing : fullShowtimeList) {
-                // Nếu đang chỉnh sửa, bỏ qua việc tự so sánh trùng với chính bản thân nó
                 if (showtime != null && existing.getShowtimeId().equals(showtime.getShowtimeId())) {
                     continue;
                 }
-
-                // 2. Chuẩn hóa dữ liệu có sẵn lấy lên từ Firebase để đối sánh chính xác
                 String cleanExistRoom = existing.getRoom() != null ? existing.getRoom().trim().replace(" ", "").toLowerCase() : "";
-                String cleanExistDate = existing.getDate() != null ? existing.getDate().trim().replace("/", "-") : "";
+                String cleanExistDate = existing.getDate() != null ? existing.getDate().trim().replace("-", "/") : "";
 
-                // 3. TIẾN HÀNH KIỂM TRA: Chỉ xét khi TRÙNG TÊN PHÒNG và TRÙNG NGÀY CHIẾU sau khi đã clean sạch chuỗi
-                if (cleanExistRoom.equals(cleanInputRoom) && cleanExistDate.equals(cleanInputDate)) {
-
+                // So sánh nếu trùng phòng chiếu và diễn ra trong cùng một ngày
+                if (cleanExistRoom.equals(cleanInputRoom) && cleanExistDate.equals(formattedDate)) {
                     int existStartMin = convertTimeToMinutes(existing.getStartTime());
                     int existEndMin = convertTimeToMinutes(existing.getEndTime());
 
                     if (existStartMin != -1 && existEndMin != -1) {
-                        // Công thức kiểm tra khoảng thời gian chồng lấn:
-                        // (Bắt đầu mới < Kết thúc cũ) VÀ (Kết thúc mới > Bắt đầu cũ)
-                        if (newStartMin < existEndMin && newEndMin > existStartMin) {
+                        // Suất mới an toàn trước nếu: kết thúc mới + 30p <= bắt đầu cũ
+                        boolean isSafeBefore = (newEndMin + CLEANUP_BUFFER) <= existStartMin;
+                        // Suất mới an toàn sau nếu: bắt đầu mới >= kết thúc cũ + 30p
+                        boolean isSafeAfter = newStartMin >= (existEndMin + CLEANUP_BUFFER);
+
+                        // Nếu vi phạm khoảng trống dọn rạp 30 phút, đánh dấu lỗi trùng lịch tức thì
+                        if (!isSafeBefore && !isSafeAfter) {
                             isOverlapped = true;
-                            conflictMovie = existing.getMovieName();
+                            conflictMovie = existing.getMovieName() != null ? existing.getMovieName() : "Phim khác";
                             conflictTimeRange = existing.getStartTime() + " ~ " + existing.getEndTime();
                             break;
                         }
@@ -288,41 +386,82 @@ public class AdminShowTimeFragment extends Fragment {
 
             if (isOverlapped) {
                 new AlertDialog.Builder(getContext())
-                        .setTitle("Trùng lịch phòng chiếu! ⚠️")
-                        .setMessage("Không thể lưu! Phòng '" + room + "' vào ngày " + date + " đã được xếp lịch cho phim:\n\n" +
-                                "🎬 Phim: " + conflictMovie + "\n" +
-                                "⏰ Thời gian: " + conflictTimeRange + "\n\n" +
-                                "Vui lòng chọn tên phòng khác hoặc thay đổi khung giờ chiếu.")
+                        .setTitle("Trùng lịch hoặc thiếu thời gian dọn rạp! ⚠️")
+                        .setMessage("Không thể lưu lịch phòng chiếu!\n\n" +
+                                "Phòng: '" + room + "' ngày " + formattedDate + "\n" +
+                                "Đang bị vướng bởi suất của phim: \"" + conflictMovie + "\"\n" +
+                                "Khung giờ chiếu: " + conflictTimeRange + "\n\n" +
+                                "👉 Quy định: Suất chiếu mới tạo phải kết thúc cách giờ mở màn suất tiếp theo ít nhất 30 phút để dọn dẹp rạp!")
                         .setPositiveButton("ĐÃ HIỂU", null)
                         .show();
-                return; // Kết thúc hàm tại đây, chặn không cho ghi dữ liệu đè lên Firestore
+                return;
             }
-            // ==============================================================================================
 
-            DocumentReference docRef = (showtime == null) ?
+            boolean isNewShowtime = (showtime == null);
+            DocumentReference docRef = isNewShowtime ?
                     db.collection("showtimes").document() : db.collection("showtimes").document(showtime.getShowtimeId());
 
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("movieId", mid);
             dataMap.put("room", room);
-            dataMap.put("date", date);
+            dataMap.put("date", formattedDate);
             dataMap.put("startTime", start);
             dataMap.put("endTime", end);
-            dataMap.put("availableSeats", Integer.parseInt(availStr));
-            dataMap.put("totalSeats", Integer.parseInt(totalStr));
+            dataMap.put("availableSeats", isNewShowtime ? 81 : Integer.parseInt(edtAvail.getText().toString().trim()));
+            dataMap.put("totalSeats", isNewShowtime ? 81 : Integer.parseInt(edtTotal.getText().toString().trim()));
             dataMap.put("status", status);
 
             docRef.set(dataMap).addOnSuccessListener(aVoid -> {
-                Toast.makeText(getContext(), "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
+                if (isNewShowtime) {
+                    WriteBatch batch = db.batch();
+                    String[] rows = {"A", "B", "C", "D", "E", "F", "G", "H", "J"};
+                    CollectionReference seatsRef = docRef.collection("seats");
+
+                    for (String rowLetter : rows) {
+                        for (int colNum = 1; colNum <= 9; colNum++) {
+                            String seatName = rowLetter + colNum;
+                            Map<String, Object> seatData = new HashMap<>();
+                            seatData.put("status", "available");
+                            seatData.put("price", 60000);
+                            batch.set(seatsRef.document(seatName), seatData);
+                        }
+                    }
+                    batch.commit().addOnSuccessListener(aVoidBatch -> {
+                        Toast.makeText(getContext(), "Thêm suất chiếu thành công!", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    });
+                } else {
+                    Toast.makeText(getContext(), "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
             });
         });
 
         dialog.show();
     }
 
+    private void calculateEndTime(String startTimeStr, EditText edtEndTarget) {
+        if (startTimeStr == null || !startTimeStr.contains(":") || startTimeStr.trim().length() < 4) {
+            edtEndTarget.setText("");
+            return;
+        }
+        try {
+            String[] parts = startTimeStr.trim().split(":");
+            int startHours = Integer.parseInt(parts[0]);
+            int startMinutes = Integer.parseInt(parts[1]);
+            int totalEndMinutes = (startHours * 60) + startMinutes + selectedMovieDurationMinutes;
+
+            int endHours = (totalEndMinutes / 60) % 24;
+            int endMinutes = totalEndMinutes % 60;
+
+            edtEndTarget.setText(String.format(Locale.getDefault(), "%02d:%02d", endHours, endMinutes));
+        } catch (Exception e) {
+            edtEndTarget.setText("");
+        }
+    }
+
     private void showSeatsStatusDialog(Showtime showtime) {
-        Dialog dialog = new Dialog(getContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth);
+        Dialog dialog = new Dialog(requireContext(), android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth);
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_view_seats, null);
         dialog.setContentView(dialogView);
 
@@ -330,58 +469,43 @@ public class AdminShowTimeFragment extends Fragment {
         TextView txtAvailableList = dialogView.findViewById(R.id.txtAvailableSeatsList);
         TextView txtBookedList = dialogView.findViewById(R.id.txtBookedSeatsList);
         ProgressBar loading = dialogView.findViewById(R.id.pbSeatsLoading);
+        Button btnClose = dialogView.findViewById(R.id.btnFormatDialogClose);
 
         txtTitle.setText("Trạng Thái Ghế - Phòng: " + showtime.getRoom());
-        txtAvailableList.setText("Đang tải...");
-        txtBookedList.setText("Đang tải...");
 
         db.collection("showtimes").document(showtime.getShowtimeId()).collection("seats")
-                .get().addOnSuccessListener(querySnapshots -> {
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
                     loading.setVisibility(View.GONE);
-                    List<String> availableSeats = new ArrayList<>();
                     List<String> bookedSeats = new ArrayList<>();
-
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String seatName = doc.getId();
-                        String seatStatus = doc.getString("status");
-
-                        if (seatStatus != null) {
-                            String cleanStatus = seatStatus.toLowerCase().trim();
-                            if (cleanStatus.equals("booked")) {
-                                bookedSeats.add(seatName);
-                            } else {
-                                availableSeats.add(seatName);
+                    if (querySnapshots != null && !querySnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot doc : querySnapshots) {
+                            if ("booked".equalsIgnoreCase(doc.getString("status"))) {
+                                bookedSeats.add(doc.getId());
                             }
-                        } else {
-                            availableSeats.add(seatName);
                         }
                     }
 
-                    if (availableSeats.isEmpty()) {
-                        txtAvailableList.setText("(Hết ghế trống)");
-                    } else {
-                        txtAvailableList.setText(android.text.TextUtils.join(", ", availableSeats));
+                    List<String> availableSeats = new ArrayList<>();
+                    String[] rows = {"A", "B", "C", "D", "E", "F", "G", "H", "J"};
+                    for (String r : rows) {
+                        for (int c = 1; c <= 9; c++) {
+                            String seat = r + c;
+                            if (!bookedSeats.contains(seat)) availableSeats.add(seat);
+                        }
                     }
 
-                    if (bookedSeats.isEmpty()) {
-                        txtBookedList.setText("(Chưa có ghế đặt)");
-                    } else {
-                        txtBookedList.setText(android.text.TextUtils.join(", ", bookedSeats));
-                    }
-
-                }).addOnFailureListener(e -> {
-                    loading.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Lỗi khi nạp danh sách cấu trúc ghế!", Toast.LENGTH_SHORT).show();
+                    txtAvailableList.setText(availableSeats.isEmpty() ? "Hết ghế trống" : TextUtils.join(", ", availableSeats));
+                    txtBookedList.setText(bookedSeats.isEmpty() ? "Chưa có ghế đặt" : TextUtils.join(", ", bookedSeats));
+                    btnClose.setOnClickListener(v -> dialog.dismiss());
                 });
-
-        dialogView.findViewById(R.id.btnFormatDialogClose).setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
     private void confirmDeleteShowtime(Showtime showtime) {
         new AlertDialog.Builder(getContext())
-                .setTitle("Xác nhận xóa")
-                .setMessage("Bạn chắc chắn muốn xóa dữ liệu suất chiếu này?")
+                .setTitle("Xác nhận xóa ❌")
+                .setMessage("Bạn có chắc chắn muốn xóa suất chiếu của phim '" + showtime.getMovieName() + "' không?")
                 .setNegativeButton("HỦY", null)
                 .setPositiveButton("XÓA BỎ", (dialog, which) -> {
                     db.collection("showtimes").document(showtime.getShowtimeId()).delete().addOnSuccessListener(aVoid ->
@@ -390,7 +514,7 @@ public class AdminShowTimeFragment extends Fragment {
     }
 
     private class ShowtimeAdapter extends RecyclerView.Adapter<ShowtimeAdapter.ShowtimeViewHolder> {
-        private List<Showtime> items;
+        private final List<Showtime> items;
         public ShowtimeAdapter(List<Showtime> items) { this.items = items; }
 
         @NonNull
@@ -403,7 +527,6 @@ public class AdminShowTimeFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ShowtimeViewHolder holder, int position) {
             Showtime showtime = items.get(position);
-
             holder.txtMovieName.setText(showtime.getMovieName());
             holder.txtRoom.setText("Phòng: " + showtime.getRoom());
             holder.txtDate.setText("Ngày: " + showtime.getDate());

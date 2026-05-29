@@ -38,7 +38,6 @@ public class SeatSelectionActivity extends AppCompatActivity {
     private SeatAdapter seatAdapter;
     private FirebaseFirestore db;
 
-    // Thông tin nhận từ Intent (Gán mặc định phòng hờ)
     private String showtimeId = "show_001";
     private String movieTitle = "";
     private String showtimeDetails = "";
@@ -95,37 +94,30 @@ public class SeatSelectionActivity extends AppCompatActivity {
             showAgeConfirmationDialog();
         });
     }
-    // ================= HIỂN THỊ HỘP THOẠI XÁC NHẬN ĐỘ TUỔI =================
     private void showAgeConfirmationDialog() {
         // Tạo trình dựng hộp thoại giao diện bo góc tiêu chuẩn hệ thống
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 
-        // Thiết lập tiêu đề và nội dung văn bản giống ảnh mẫu 100%
         builder.setTitle("Xác nhận");
         builder.setMessage("Phim dành cho mọi độ tuổi. Tôi xác nhận rạp phim không được phép phục vụ khách hàng dưới 13 tuổi cho các suất chiếu kết thúc từ 22:00 và dưới 16 tuổi cho các suất chiếu kết thúc từ 23:00. Tôi đồng ý cung cấp giấy tờ tùy thân để xác thực độ tuổi người xem. Rạp sẽ không hoàn tiền nếu người xem không đáp ứng đủ điều kiện.");
 
-        // Cấu hình nút hành động "Xác nhận" (Bấm vào mới tiến hành lưu lên Firebase)
         builder.setPositiveButton("Xác nhận", (dialog, which) -> {
-            // Gọi hàm đẩy dữ liệu cập nhật trạng thái ghế lên Cloud Firestore
             navigateToPaymentInfo();
         });
 
-        // Cấu hình nút hành động "Hủy" (Bấm vào chỉ đóng hộp thoại, giữ nguyên màn hình chọn ghế)
         builder.setNegativeButton("Hủy", (dialog, which) -> {
             dialog.dismiss();
         });
 
-        // Khởi tạo thực thể và tùy biến màu sắc chữ của các nút bấm cho đồng bộ giao diện
         androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Thay đổi màu sắc của nút để làm nổi bật hành động (Màu hồng/đỏ chủ đạo)
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#D81B60"));
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#757575"));
     }
     private void setupRecyclerView() {
         seatAdapter = new SeatAdapter(seatList);
-        rvSeatMap.setLayoutManager(new GridLayoutManager(this, 9)); // Luôn cố định lưới 9 cột
+        rvSeatMap.setLayoutManager(new GridLayoutManager(this, 9));
         rvSeatMap.setAdapter(seatAdapter);
     }
 
@@ -145,8 +137,6 @@ public class SeatSelectionActivity extends AppCompatActivity {
         tvTotalPrice.setText("0đ");
     }
 
-    // ================= THUẬT TOÁN ĐỔ SƠ ĐỒ GHẾ CHUẨN TỪ A -> J =================
-
     private void loadSeatsFromFirestore() {
         db.collection("showtimes")
                 .document(showtimeId)
@@ -156,15 +146,13 @@ public class SeatSelectionActivity extends AppCompatActivity {
                     System.out.println("DEBUG_LOG: Kết nối thành công! Lấy được " + queryDocumentSnapshots.size() + " ghế từ document: " + showtimeId);
 
                     seatList.clear();
-
-                    // Dùng HashMap để gom ghế từ Firebase theo từ khóa Tên Ghế (VD: "A1" -> Đối tượng Seat)
                     Map<String, Seat> firebaseSeatsMap = new HashMap<>();
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         try {
                             Seat seat = doc.toObject(Seat.class);
                             if (seat != null) {
-                                seat.setSeatName(doc.getId()); // ID Document trên Firestore là "A1", "A2"...
+                                seat.setSeatName(doc.getId());
                                 firebaseSeatsMap.put(doc.getId(), seat);
                             }
                         } catch (Exception e) {
@@ -178,24 +166,20 @@ public class SeatSelectionActivity extends AppCompatActivity {
                     // Vòng lặp dựng bố cục sơ đồ rạp tuyến tính
                     for (String rowLetter : rows) {
                         for (int colNum = 1; colNum <= 9; colNum++) {
-                            String currentSeatKey = rowLetter + colNum; // Tạo chuỗi khóa để tra cứu (VD: "A1", "B5")
+                            String currentSeatKey = rowLetter + colNum;
 
-                            // Kiểm tra xem hàng E, F có phải là khoảng trống lối đi bên góc trái (Cột 1, 2, 3) hay không
                             if ((rowLetter.equals("E") || rowLetter.equals("F")) && colNum <= 3) {
                                 seatList.add(new Seat("", "empty", 0));
                             } else {
-                                // Kiểm tra xem trên Firestore có dữ liệu của ghế này không
                                 if (firebaseSeatsMap.containsKey(currentSeatKey)) {
                                     seatList.add(firebaseSeatsMap.get(currentSeatKey));
                                 } else {
-                                    // Trường hợp Firebase thiếu document phòng hờ, tự sinh ghế trống mang tên đó để tránh rỗng màn hình
                                     seatList.add(new Seat(currentSeatKey, "available", 60000));
                                 }
                             }
                         }
                     }
 
-                    // Làm mới giao diện lưới ghế sau khi sắp xếp xong
                     seatAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
@@ -203,11 +187,8 @@ public class SeatSelectionActivity extends AppCompatActivity {
                     Toast.makeText(this, "Lỗi kết nối sơ đồ ghế: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
-    // ================= CẬP NHẬT TRẠNG THÁI ĐẶT GHẾ LÊN CLOUD =================
-    // Đổi tên hàm thành chuyển trang để đúng với bản chất logic mới
     private void navigateToPaymentInfo() {
-        // Gom tên các ghế đã chọn thành chuỗi dạng: "J06, J05"
+        // 1. Gom tên các ghế đã chọn thành chuỗi dạng: "J06, J05"
         StringBuilder seatsBuilder = new StringBuilder();
         for (int i = 0; i < selectedSeatsList.size(); i++) {
             seatsBuilder.append(selectedSeatsList.get(i).getSeatName());
@@ -216,9 +197,9 @@ public class SeatSelectionActivity extends AppCompatActivity {
             }
         }
 
-        // Tạo chuỗi danh sách để truyền danh sách đối tượng sang nếu cần xử lý vòng lặp lẻ sau này
+        // 2. Tạo chuỗi danh sách để truyền danh sách đối tượng sang nếu cần xử lý vòng lặp lẻ sau này
         Intent intent = new Intent(SeatSelectionActivity.this, PaymentInfoActivity.class);
-        intent.putExtra("SHOWTIME_ID", showtimeId); // Rất quan trọng để trang sau biết lưu vào đâu
+        intent.putExtra("SHOWTIME_ID", showtimeId);
         intent.putExtra("MOVIE_TITLE", movieTitle != null && !movieTitle.isEmpty() ? movieTitle : "Doraemon Movie 45");
         intent.putExtra("SHOWTIME_INFO", showtimeDetails);
         intent.putExtra("TOTAL_PRICE", tvTotalPrice.getText().toString());
@@ -240,8 +221,6 @@ public class SeatSelectionActivity extends AppCompatActivity {
             tvTotalPrice.setText(String.format("%,dđ", totalPrice));
         }
     }
-
-    // ================= ADAPTER CON HIỂN THỊ HÌNH ẢNH GHẾ =================
     private class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.SeatViewHolder> {
 
         private List<Seat> list;
@@ -272,17 +251,17 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
             // Thiết lập màu sắc hiển thị động theo đúng trạng thái từ Cloud Firestore
             switch (seat.getStatus()) {
-                case "booked": // Ghế đã có người khác đặt trước đó (Màu xám)
+                case "booked":
                     holder.tvSeat.setBackgroundResource(R.drawable.bg_seat_booked);
                     holder.tvSeat.setTextColor(Color.TRANSPARENT); // Ẩn chữ đi cho đẹp
                     break;
 
-                case "selected": // Ghế người dùng đang kích chọn (Màu hồng sen chủ đạo)
+                case "selected":
                     holder.tvSeat.setBackgroundResource(R.drawable.bg_seat_selected);
                     holder.tvSeat.setTextColor(Color.WHITE);
                     break;
 
-                case "available": // Ghế trống còn hạn mua (Màu tím nhạt viền khung)
+                case "available":
                 default:
                     holder.tvSeat.setBackgroundResource(R.drawable.bg_seat_available);
                     holder.tvSeat.setTextColor(Color.parseColor("#7A53D5"));
@@ -291,7 +270,7 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
             // Xử lý sự kiện click tương tác chọn/hủy chọn ghế
             holder.itemView.setOnClickListener(v -> {
-                if (seat.getStatus().equals("booked")) return; // Khóa tương tác nếu ghế đã bán
+                if (seat.getStatus().equals("booked")) return;
 
                 if (seat.getStatus().equals("available")) {
                     seat.setStatus("selected");

@@ -35,7 +35,7 @@ public class FavoriteFragment extends Fragment {
     private LinearLayout layoutEmptyFavorite;
 
     private FirebaseFirestore db;
-    private List<Movie> favoriteMoviesList = new ArrayList<>();
+    List<Movie> favoriteMoviesList = new ArrayList<>();
     private FavoriteListAdapter adapter;
 
     @Nullable
@@ -50,14 +50,6 @@ public class FavoriteFragment extends Fragment {
         // Khởi tạo Adapter và gán cho ListView
         adapter = new FavoriteListAdapter(getContext(), favoriteMoviesList);
         lvFavorites.setAdapter(adapter);
-
-        // SỰ KIỆN CLICK DÒNG: Khi ấn vào bất kỳ bộ phim nào trong danh sách yêu thích, mở thẳng trang chi tiết phim đó
-        lvFavorites.setOnItemClickListener((parent, view1, position, id) -> {
-            Movie chosenMovie = favoriteMoviesList.get(position);
-            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-            intent.putExtra("CHOSEN_MOVIE", chosenMovie);
-            startActivity(intent);
-        });
 
         // Tải dữ liệu phim yêu thích từ mạng về
         loadFavoriteMoviesFromFirestore();
@@ -92,15 +84,38 @@ public class FavoriteFragment extends Fragment {
                             // Chuyển đổi dữ liệu ngược về Object Movie để tái sử dụng
                             Movie movie = new Movie();
                             movie.setMovieId(doc.getString("movieId"));
-                            movie.setTitle(doc.getString("movieTitle"));
+
+                            // Đồng bộ gán cả 2 trường title phòng trường hợp db thiết kế không đồng nhất
+                            String title = doc.getString("movieTitle");
+                            if (title == null) title = doc.getString("title");
+                            movie.setTitle(title);
+
                             movie.setBannerUrl(doc.getString("bannerUrl"));
                             movie.setPosterUrl(doc.getString("posterUrl"));
                             movie.setGenre(doc.getString("genre"));
 
-                            // Các trường thông tin phụ đề phòng nếu trang chi tiết cần đọc
-                            movie.setDescription(doc.contains("description") ? doc.getString("description") : "Nội dung đang cập nhật...");
-                            movie.setDuration(doc.contains("duration") ? doc.getLong("duration").intValue() : 120);
-                            movie.setReleaseDate(doc.contains("releaseDate") ? doc.getString("releaseDate") : "2026-01-01");
+                            // Đảm bảo đọc chuẩn xác dữ liệu kiểu số và chuỗi
+                            if (doc.contains("description") && doc.get("description") != null) {
+                                movie.setDescription(doc.getString("description"));
+                            } else {
+                                movie.setDescription("Nội dung đang cập nhật...");
+                            }
+
+                            if (doc.contains("duration") && doc.get("duration") != null) {
+                                try {
+                                    movie.setDuration(((Long) doc.get("duration")).intValue());
+                                } catch (Exception e) {
+                                    movie.setDuration(120);
+                                }
+                            } else {
+                                movie.setDuration(120);
+                            }
+
+                            if (doc.contains("releaseDate") && doc.get("releaseDate") != null) {
+                                movie.setReleaseDate(doc.getString("releaseDate"));
+                            } else {
+                                movie.setReleaseDate("2026-01-01");
+                            }
 
                             favoriteMoviesList.add(movie);
                         }
@@ -124,8 +139,6 @@ public class FavoriteFragment extends Fragment {
         lvFavorites.setVisibility(View.GONE);
         layoutEmptyFavorite.setVisibility(View.VISIBLE);
     }
-
-    // ================= ADAPTER TÙY BIẾN CHO LISTVIEW YÊU THÍCH =================
     private static class FavoriteListAdapter extends BaseAdapter {
 
         private Context context;
@@ -166,8 +179,7 @@ public class FavoriteFragment extends Fragment {
             tvTitle.setText(movie.getTitle());
             tvGenre.setText(movie.getGenre());
 
-            // KHẮC PHỤC LỖI HIỂN THỊ POSTER:
-            // Ưu tiên lấy ảnh poster đứng (posterUrl), nếu trống thì mới lấy ảnh banner ngang làm dự phòng
+            // Khắc phục lỗi hiển thị Poster
             String imageToShow = movie.getPosterUrl();
             if (imageToShow == null || imageToShow.isEmpty()) {
                 imageToShow = movie.getBannerUrl();
@@ -179,6 +191,14 @@ public class FavoriteFragment extends Fragment {
                     .placeholder(R.drawable.movie_test)
                     .error(R.drawable.movie_test)
                     .into(imgPoster);
+
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, MovieDetailActivity.class);
+                intent.putExtra("movieId", movie.getMovieId());
+                // Thêm cờ chạy Intent an toàn từ Context của Adapter
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            });
 
             return convertView;
         }

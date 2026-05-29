@@ -10,13 +10,11 @@ public class Review implements Serializable {
     private String userAvatar;
     private double rating;
     private String comment;
-    private long timestamp; // Khớp chuẩn với Number (int64) trên Firestore
+    private long timestamp;
 
-    // Hàm khởi tạo không đối số bắt buộc phải có để Firebase Firestore tự động ép dữ liệu (Mapping)
     public Review() {
     }
 
-    // Hàm khởi tạo đầy đủ tham số
     public Review(String reviewId, String movieId, String userId, String userName, String userAvatar, double rating, String comment, long timestamp) {
         this.reviewId = reviewId;
         this.movieId = movieId;

@@ -22,7 +22,7 @@ import dacn.buithikimnhan.cinemabookingapp.data.User;
 
 public class ManageUserFragment extends Fragment {
 
-    private RecyclerView rvUsers;
+     RecyclerView rvUsers;
     private EditText edtSearch;
     private FirebaseFirestore db;
     private List<User> fullList;
@@ -41,14 +41,12 @@ public class ManageUserFragment extends Fragment {
         fullList = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        // Khởi tạo Adapter cố định ngay từ đầu để quản lý luồng dữ liệu an toàn hơn
         adapter = new UserAdapter(filteredList);
         rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
         rvUsers.setAdapter(adapter);
 
         listenToUsersRealtime();
 
-        // Xử lý sự kiện tìm kiếm Realtime khi nhập text
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -91,10 +89,6 @@ public class ManageUserFragment extends Fragment {
         // Gọi phương thức cập nhật danh sách an toàn
         adapter.setData(filteredList);
     }
-
-    // =================================================================================
-    // ADAPTER RECYCLERVIEW HIỂN THỊ DANH SÁCH USER VÀ HÀM LOGIC CHỨC NĂNG
-    // =================================================================================
     private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
         private List<User> items;
 
@@ -125,50 +119,45 @@ public class ManageUserFragment extends Fragment {
             holder.txtName.setText(user.getFullName());
             holder.txtEmail.setText(user.getEmail());
 
-            // ĐỔI MỚI: Đổ dữ liệu SĐT và Ngày tạo tài khoản lên UI
             String userPhone = user.getPhone();
             holder.txtPhone.setText("SĐT: " + (userPhone != null && !userPhone.isEmpty() ? userPhone : "Chưa cập nhật"));
 
             String userCreatedAt = user.getCreatedAt();
             holder.txtCreatedAt.setText("Ngày tham gia: " + (userCreatedAt != null && !userCreatedAt.isEmpty() ? userCreatedAt : "--/--/----"));
 
-            // Avatar dạng ký tự đầu tiên viết hoa
             if (user.getFullName() != null && !user.getFullName().isEmpty()) {
                 holder.txtAvatar.setText(user.getFullName().substring(0, 1).toUpperCase());
             } else {
                 holder.txtAvatar.setText("U");
             }
 
-            // Phân biệt màu sắc Huy hiệu quyền (Role Badge)
             boolean isAdmin = "admin".equalsIgnoreCase(user.getRole());
             holder.txtRoleBadge.setText(isAdmin ? "ADMIN" : "USER");
             if (isAdmin) {
                 holder.txtRoleBadge.setTextColor(Color.parseColor("#FFFFFF"));
-                holder.txtRoleBadge.setBackgroundColor(Color.parseColor("#E53E3E")); // Huy hiệu đỏ cho Admin
+                holder.txtRoleBadge.setBackgroundColor(Color.parseColor("#E53E3E"));
 
-                // BẢO VỆ TUYỆT ĐỐI: Ẩn luôn 2 nút thao tác Khóa/Xóa nếu đó là tài khoản Admin
                 holder.btnLock.setVisibility(View.INVISIBLE);
                 holder.btnDelete.setVisibility(View.INVISIBLE);
             } else {
                 holder.txtRoleBadge.setTextColor(Color.parseColor("#2B6CB0"));
-                holder.txtRoleBadge.setBackgroundColor(Color.parseColor("#EBF8FF")); // Huy hiệu xanh dương cho User
+                holder.txtRoleBadge.setBackgroundColor(Color.parseColor("#EBF8FF"));
                 holder.btnLock.setVisibility(View.VISIBLE);
                 holder.btnDelete.setVisibility(View.VISIBLE);
             }
 
-            // Phân biệt trạng thái Khóa / Hoạt động bằng biến boolean isBlocked
             if (user.isBlocked()) {
                 holder.txtStatus.setText("ĐÃ KHÓA");
                 holder.txtStatus.setTextColor(Color.parseColor("#C53030"));
                 holder.txtStatus.setBackgroundColor(Color.parseColor("#FED7D7"));
                 holder.btnLock.setText("Mở khóa");
-                holder.btnLock.setTextColor(Color.parseColor("#48BB78")); // Màu xanh lá cây để mở lại
+                holder.btnLock.setTextColor(Color.parseColor("#48BB78"));
             } else {
                 holder.txtStatus.setText("HOẠT ĐỘNG");
                 holder.txtStatus.setTextColor(Color.parseColor("#2F855A"));
                 holder.txtStatus.setBackgroundColor(Color.parseColor("#C6F6D5"));
                 holder.btnLock.setText("Khóa TK");
-                holder.btnLock.setTextColor(Color.parseColor("#ECC94B")); // Màu vàng cảnh báo khóa
+                holder.btnLock.setTextColor(Color.parseColor("#ECC94B"));
             }
 
             // XỬ LÝ SỰ KIỆN: KHÓA / MỞ KHÓA TÀI KHOẢN
@@ -230,8 +219,6 @@ public class ManageUserFragment extends Fragment {
                 txtStatus = v.findViewById(R.id.txtStatusBadge);
                 btnLock = v.findViewById(R.id.btnLockUser);
                 btnDelete = v.findViewById(R.id.btnDeleteUser);
-
-                // Ánh xạ thành phần giao diện mới được thêm vào
                 txtPhone = v.findViewById(R.id.txtUserPhone);
                 txtCreatedAt = v.findViewById(R.id.txtUserCreatedAt);
             }

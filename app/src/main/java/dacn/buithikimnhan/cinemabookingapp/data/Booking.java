@@ -29,7 +29,6 @@ public class Booking implements Serializable {
         this.userId = userId;
     }
 
-    // Các hàm Getter và Setter chuẩn hóa
     public String getBookingId() { return bookingId; }
     public void setBookingId(String bookingId) { this.bookingId = bookingId; }
 

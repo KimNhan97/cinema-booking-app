@@ -73,10 +73,8 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
                 .error(R.drawable.movie_test)
                 .into(holder.imgPoster);
 
-        // NÚT SỬA -> Hiện hộp thoại và điền sẵn dữ liệu phim hiện tại
         holder.btnEdit.setOnClickListener(v -> showEditDialog(movie));
 
-        // NÚT XÓA -> Hỏi xác nhận "Bạn có chắc chắn muốn xóa không?" trước khi xóa tài liệu khỏi Firestore
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Xác nhận xóa")
@@ -110,7 +108,6 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_movie, null);
         builder.setView(dialogView);
 
-        // Ánh xạ các thành phần giao diện trong Dialog XML
         TextView tvTitle = dialogView.findViewById(R.id.dialogTitle);
         EditText edtTitle = dialogView.findViewById(R.id.dialogEdtTitle);
         EditText edtDuration = dialogView.findViewById(R.id.dialogEdtDuration);
@@ -128,10 +125,8 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
         Button btnCancel = dialogView.findViewById(R.id.dialogBtnCancel);
         Button btnSave = dialogView.findViewById(R.id.dialogBtnSave);
 
-        // Đặt tiêu đề cho Hộp thoại
         tvTitle.setText("CHỈNH SỬA THÔNG TIN PHIM");
 
-        // Đổ toàn bộ nội dung hiện tại của bộ phim lên các trường nhập liệu
         edtTitle.setText(movie.getTitle() != null ? movie.getTitle() : "");
         edtDuration.setText(String.valueOf(movie.getDuration()));
         edtGenre.setText(movie.getGenre() != null ? movie.getGenre() : "");
@@ -146,17 +141,14 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
             rbSoon.setChecked(true);
         }
 
-        // Tạo và hiển thị hộp thoại dữ liệu
         AlertDialog dialog = builder.create();
 
-        // Xóa viền xám mặc định của hệ thống bao quanh giao diện góc bo màu #F8EDED
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
 
         dialog.show();
 
-        // Xử lý sự kiện cho 2 nút nộp liên kết ảnh (Tùy chọn trải nghiệm người dùng)
         btnSubmitPoster.setOnClickListener(v -> {
             String url = edtPoster.getText().toString().trim();
             if(!url.isEmpty()) {
@@ -171,10 +163,8 @@ public class AdminMovieAdapter extends RecyclerView.Adapter<AdminMovieAdapter.Ad
             }
         });
 
-        // Xử lý nút Hủy bỏ
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
-        // Xử lý lưu thông tin cập nhật lên Firestore
         btnSave.setOnClickListener(v -> {
             String title = edtTitle.getText().toString().trim();
             String durationStr = edtDuration.getText().toString().trim();

@@ -13,7 +13,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import dacn.buithikimnhan.cinemabookingapp.user.MainActivity;
@@ -21,9 +25,9 @@ import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class PaymentInfoActivity extends AppCompatActivity {
 
-     TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice;
-     ImageView btnBack;
-     Button btnSubmitPayment;
+    TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice;
+    ImageView btnBack;
+    Button btnSubmitPayment;
 
     private FirebaseFirestore db;
     private String showtimeId = "";
@@ -95,7 +99,7 @@ public class PaymentInfoActivity extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng đăng nhập để thực hiện thanh toán!", Toast.LENGTH_SHORT).show();
             return;
         }
-        String currentUserId = currentUser.getUid(); // Lấy UID thật từ Firebase Auth
+        String currentUserId = currentUser.getUid();
 
         if (showtimeId == null || showtimeId.isEmpty() || seatsListString == null || seatsListString.isEmpty()) {
             Toast.makeText(this, "Dữ liệu hóa đơn không hợp lệ!", Toast.LENGTH_SHORT).show();
@@ -122,14 +126,14 @@ public class PaymentInfoActivity extends AppCompatActivity {
                     seatData, com.google.firebase.firestore.SetOptions.merge());
         }
 
-        // 3. Đóng gói bản ghi hóa đơn thật lưu vào collection "bookings" kèm UID thật
+        // 3. Đóng gói bản ghi hóa đơn thật lưu vào collection "bookings"
         Map<String, Object> bookingData = new HashMap<>();
         bookingData.put("bookingId", newBookingId);
         bookingData.put("movieTitle", tvMovieTitle.getText().toString());
         bookingData.put("room", tvRoomName.getText().toString());
         bookingData.put("status", "booked");
 
-        // === ĐOẠN ĐÃ SỬA: Chuyển hoàn toàn sang kiểu Số (Int) trước khi gửi lên Firebase ===
+        // Chuyển hoàn toàn sang kiểu Số (Int) trước khi gửi lên Firebase
         String rawPrice = tvTotalPrice.getText().toString();
         String cleanPrice = rawPrice.replace("đ", "")
                 .replaceAll("[.,]", "")
@@ -137,25 +141,48 @@ public class PaymentInfoActivity extends AppCompatActivity {
 
         int totalPriceInt = 0;
         try {
-            totalPriceInt = Integer.parseInt(cleanPrice); // Ép từ chuỗi "120000" thành số 120000
+            totalPriceInt = Integer.parseInt(cleanPrice);
         } catch (NumberFormatException e) {
-            // Đề phòng lỗi định dạng chuỗi
+            // Không xử lý lỗi định dạng
         }
-        bookingData.put("totalPrice", totalPriceInt); // Lưu dạng Number chuẩn Firestore!
-        // =========================================================================
-
+        bookingData.put("totalPrice", totalPriceInt);
         bookingData.put("userId", currentUserId);
 
-        // Tách chuỗi suất chiếu (Ví dụ: "18:36 - 2026-05-25") để đưa vào Firestore dạng trường độc lập
         String fullShowTimeText = tvShowTime.getText().toString();
-        if (fullShowTimeText.contains("-")) {
-            String[] timeParts = fullShowTimeText.split("-");
-            bookingData.put("startTime", timeParts[0].trim());
-            bookingData.put("date", timeParts[1].trim());
-        } else {
-            bookingData.put("startTime", "18:36");
-            bookingData.put("date", "2026-05-25");
+        String extractedStartTime = "18:36"; // Giá trị phòng hờ
+        String extractedDate = "2026-05-25";      // Giá trị phòng hờ
+
+        try {
+            if (fullShowTimeText.contains("|")) {
+                // Tách phần giờ ("20:05 ~ 22:07") và phần ngày ("2026/05/29")
+                String[] parts = fullShowTimeText.split("\\|");
+                String timePart = parts[0].trim();
+                extractedDate = parts[1].trim().replace("/", "-"); // Đổi định dạng xuyệt sang gạch ngang nếu cần
+
+                // Lấy giờ bắt đầu trước ký tự dấu ngã "~"
+                if (timePart.contains("~")) {
+                    extractedStartTime = timePart.split("~")[0].trim();
+                } else if (timePart.contains("-")) {
+                    extractedStartTime = timePart.split("-")[0].trim();
+                } else {
+                    extractedStartTime = timePart;
+                }
+            } else if (fullShowTimeText.contains("-")) {
+                String[] timeParts = fullShowTimeText.split("-");
+                extractedStartTime = timeParts[0].trim();
+                extractedDate = timeParts[1].trim();
+            }
+        } catch (Exception e) {
+            // Đề phòng lỗi phân tách chuỗi ngoài ý muốn, giữ nguyên giá trị mặc định ban đầu
         }
+
+        bookingData.put("startTime", extractedStartTime);
+        bookingData.put("date", extractedDate);
+
+        //Tạo và lưu trường dữ liệu Ngày đặt vé thực tế hệ thống
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        String currentBookingDate = sdf.format(new Date());
+        bookingData.put("bookingDate", currentBookingDate);
 
         java.util.List<String> seatsList = java.util.Arrays.asList(seatsArray);
         bookingData.put("seats", seatsList);
@@ -167,11 +194,11 @@ public class PaymentInfoActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Đặt vé thành công!", Toast.LENGTH_SHORT).show();
 
-                    // Điều hướng quay về màn hình chính MainActivity (Mặc định mở HomeFragment)
+                    // Điều hướng quay về màn hình chính
                     Intent intent = new Intent(PaymentInfoActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
-                    finish(); // Đóng màn hình thanh toán
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Lỗi hệ thống: " + e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -41,19 +41,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
 
-        // Gán dữ liệu Text chữ
         holder.tvTitle.setText(movie.getTitle() != null ? movie.getTitle() : "Chưa có tên");
         holder.tvGenre.setText(movie.getGenre() != null ? movie.getGenre() : "Thế loại");
 
-        // Tải ảnh mượt mà bằng Glide (Lấy context động tránh xung đột vòng đời)
         Glide.with(holder.itemView.getContext())
                 .load(movie.getPosterUrl())
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // Lưu cache thông minh tăng tốc độ load
-                .placeholder(android.R.drawable.ic_menu_gallery) // Ảnh chờ khi đang tải
-                .error(android.R.drawable.ic_delete)             // Hiện dấu X nếu link chết/lỗi mạng
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_delete)
                 .into(holder.imgPoster);
-
-        // Sự kiện click vào item chuyển sang chi tiết phim
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MovieDetailActivity.class);
             intent.putExtra("movieId", movie.getMovieId());

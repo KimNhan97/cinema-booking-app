@@ -66,7 +66,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private RecyclerView rvReviews;
     private LinearLayout layoutEmptyReviews;
     private ReviewAdapter reviewAdapter;
-    private List<Review> reviewList = new ArrayList<>();
+     List<Review> reviewList = new ArrayList<>();
 
     Movie currentMovie;
     List<String> distinctDates = new ArrayList<>();
@@ -183,25 +183,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchMovieDetailFromFirestore(String movieId) {
-        db.collection("movies").document(movieId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        currentMovie = documentSnapshot.toObject(Movie.class);
-                        if (currentMovie != null) {
-                            currentMovie.setMovieId(documentSnapshot.getId());
-                            displayMovieData();
-                        }
-                    } else {
-                        Toast.makeText(this, "Dữ liệu phim không tồn tại trên hệ thống!", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi tải thông tin: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-    }
+
 
     private void displayMovieData() {
         if (currentMovie == null) return;
@@ -226,8 +208,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         checkFavoriteStatus();
         loadMovieReviews(currentMovie.getMovieId());
     }
-
-    // ================= LOGIC XỬ LÝ CHỨC NĂNG YÊU THÍCH PHIM =================
 
     private void checkFavoriteStatus() {
         if (currentUserId.isEmpty() || currentMovie == null) return;
@@ -295,11 +275,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
-    // ================= XỬ LÝ SỰ KIỆN LỊCH CHIẾU ĐỘNG =================
-
     private void generateCurrentDates() {
         distinctDates.clear();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
 
         for (int i = 0; i < 7; i++) {
@@ -330,7 +308,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             TextView tvDateLabel = dateView.findViewById(R.id.tvDateLabel);
 
             try {
-                SimpleDateFormat sdfInput = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                // ĐỒNG BỘ: Đọc vào chuỗi định dạng dd/MM/yyyy
+                SimpleDateFormat sdfInput = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Date date = sdfInput.parse(rawDate);
 
                 SimpleDateFormat sdfDay = new SimpleDateFormat("EEEE", new Locale("vi", "VN"));
@@ -339,7 +318,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                 String dayOfWeek = sdfDay.format(date);
                 if (dayOfWeek.equalsIgnoreCase("Chủ Nhật")) dayOfWeek = "C.Nhật";
 
-                SimpleDateFormat sdfTodayCheck = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                // So sánh kiểm tra ngày hôm nay
+                SimpleDateFormat sdfTodayCheck = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 if (sdfTodayCheck.format(new Date()).equals(rawDate)) {
                     dayOfWeek = "H.nay";
                 }
@@ -383,26 +363,87 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
+
+    private void fetchMovieDetailFromFirestore(String movieId) {
+        // Log kiểm tra ID nhận từ Intent
+        Log.d(TAG, "fetchMovieDetailFromFirestore được gọi với ID: " + movieId);
+
+        db.collection("movies").document(movieId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        currentMovie = documentSnapshot.toObject(Movie.class);
+                        if (currentMovie != null) {
+                            // Đảm bảo ép chặt ID của Document vào Model bất kể trong DB có trường này hay không
+                            currentMovie.setMovieId(documentSnapshot.getId());
+                            Log.d(TAG, "Tải thông tin phim thành công: " + currentMovie.getTitle() + " | ID thực tế: " + currentMovie.getMovieId());
+                            displayMovieData();
+                        }
+                    } else {
+                        Toast.makeText(this, "Dữ liệu phim không tồn tại trên hệ thống!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Lỗi tải thông tin: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+    }
+
     private void filterTimeSlotsByDate(String dateStr) {
         List<Showtime> filteredList = new ArrayList<>();
         selectedShowtime = null;
 
-        if (currentMovie == null) return;
+        if (currentMovie == null || currentMovie.getMovieId() == null) {
+            Log.e(TAG, "Không thể lọc lịch chiếu vì thông tin phim (ID) bị trống!");
+            return;
+        }
 
+        String searchMovieId = currentMovie.getMovieId().trim();
+        String searchDate = dateStr.trim();
+
+        Log.d(TAG, "=== TIẾN HÀNH TRUY VẤN TỐI ƯU FIRESTORE ===");
+        Log.d(TAG, "Lọc trước theo ngày: '" + searchDate + "'");
+
+        // Chỉ lọc theo ngày để lấy toàn bộ suất chiếu trong ngày đó về máy
         db.collection("showtimes")
-                .whereEqualTo("movieId", currentMovie.getMovieId())
-                .whereEqualTo("date", dateStr)
+                .whereEqualTo("date", searchDate)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     filteredList.clear();
+                    Log.d(TAG, "Tổng số suất chiếu trong ngày này trên DB: " + queryDocumentSnapshots.size());
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        Showtime showtime = doc.toObject(Showtime.class);
-                        if (showtime != null) {
+                        String dbMovieId = doc.getString("movieId");
+
+                        // Tự so sánh ID phim bằng code Java để tránh lỗi NoSQL
+                        if (dbMovieId != null && dbMovieId.trim().equals(searchMovieId)) {
+                            Showtime showtime = new Showtime();
                             showtime.setShowtimeId(doc.getId());
-                            filteredList.add(showtime);
+                            showtime.setMovieId(dbMovieId);
+                            showtime.setRoom(doc.getString("room"));
+                            showtime.setDate(doc.getString("date"));
+
+                            // Đọc an toàn các trường có thể bị thiếu (null) trên database
+                            String start = doc.getString("startTime");
+                            String end = doc.getString("endTime");
+                            showtime.setStartTime(start != null ? start : "00:00");
+                            showtime.setEndTime(end != null ? end : "00:00");
+
+                            Long avail = doc.getLong("availableSeats");
+                            Long total = doc.getLong("totalSeats");
+                            showtime.setAvailableSeats(avail != null ? avail.intValue() : 0);
+                            showtime.setTotalSeats(total != null ? total.intValue() : 0);
+
+                            String status = doc.getString("status");
+                            showtime.setStatus(status != null ? status : "open");
+
+                            if (showtime.getStatus().equalsIgnoreCase("open")) {
+                                filteredList.add(showtime);
+                            }
                         }
                     }
+
+                    Log.d(TAG, "Số suất chiếu khớp với phim '" + searchMovieId + "': " + filteredList.size());
 
                     TimeSlotAdapter timeSlotAdapter = new TimeSlotAdapter(filteredList);
                     rvTimeSlots.setAdapter(timeSlotAdapter);
@@ -415,9 +456,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                         layoutEmptyShowtime.setVisibility(View.GONE);
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(MovieDetailActivity.this, "Lỗi tải lịch chiếu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Truy vấn thất bại: " + e.getMessage());
+                });
     }
-
     private class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeViewHolder> {
         List<Showtime> showtimeList;
         private int selectedPosition = -1;
@@ -472,8 +514,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
     }
-
-    // ================= XỬ LÝ CHỨC NĂNG ĐÁNH GIÁ (REVIEW & RATING) =================
 
     private void loadMovieReviews(String movieId) {
         db.collection("reviews")

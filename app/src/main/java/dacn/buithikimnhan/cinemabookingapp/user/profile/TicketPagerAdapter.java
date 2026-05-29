@@ -36,7 +36,7 @@ public class TicketPagerAdapter extends RecyclerView.Adapter<TicketPagerAdapter.
     public void onBindViewHolder(@NonNull TicketViewHolder holder, int position) {
         DocumentSnapshot doc = ticketList.get(position);
 
-        // Đổ thông tin text
+        // 1. Đổ thông tin text
         holder.ticketMovieTitle.setText(doc.getString("movieTitle"));
         holder.ticketRoom.setText(doc.getString("room"));
 
@@ -54,7 +54,7 @@ public class TicketPagerAdapter extends RecyclerView.Adapter<TicketPagerAdapter.
         }
         holder.ticketBookingId.setText("Mã HD: " + bookingId);
 
-        // Hiển thị giá tiền
+        // 2. Hiển thị giá tiền
         try {
             Long price = doc.getLong("totalPrice");
             if (price != null) {
@@ -67,7 +67,7 @@ public class TicketPagerAdapter extends RecyclerView.Adapter<TicketPagerAdapter.
             holder.ticketPrice.setText(stringPrice != null ? stringPrice : "0đ");
         }
 
-        // Định dạng danh sách ghế
+        // 2. Định dạng danh sách ghế
         Object seatsObj = doc.get("seats");
         if (seatsObj instanceof List) {
             List<String> listSeats = (List<String>) seatsObj;
@@ -78,7 +78,7 @@ public class TicketPagerAdapter extends RecyclerView.Adapter<TicketPagerAdapter.
             holder.ticketSeats.setText("-");
         }
 
-        // Tạo mã QR Code độc lập cho từng vé
+        // 3. Tạo mã QR Code độc lập cho từng vé
         Bitmap qrBitmap = generateQRCode(bookingId, 350, 350);
         if (qrBitmap != null) {
             holder.ticketQRCode.setImageBitmap(qrBitmap);
