@@ -26,11 +26,10 @@ import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    // Ánh xạ đúng các ID từ file XML giao diện cinematic của bạn
     private EditText edtFullName, edtEmail, edtPassword, edtConfirmPassword;
     private CheckBox cbTerms;
      TextView tvSignIn;
-    private android.view.View btnCreateAccount; // Dùng View tổng quát vì XML của bạn khai báo thẻ <Button>
+    private android.view.View btnCreateAccount;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -56,7 +55,6 @@ public class RegisterActivity extends AppCompatActivity {
         // Xử lý sự kiện khi bấm nút tạo tài khoản
         btnCreateAccount.setOnClickListener(v -> handleRegister());
 
-        // Chuyển ngược lại màn hình Login nếu bấm vào text đã có tài khoản
         tvSignIn.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);

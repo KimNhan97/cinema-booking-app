@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot; // Thêm import này
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -25,7 +26,8 @@ import dacn.buithikimnhan.cinemabookingapp.R;
 
 public class PaymentInfoActivity extends AppCompatActivity {
 
-    TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice;
+    // Thêm tvUserName và tvUserContact vào đây
+    TextView tvMovieTitle, tvShowTime, tvMovieFormat, tvRoomName, tvSeatsSelected, tvTotalPrice, tvUserName, tvUserContact;
     ImageView btnBack;
     Button btnSubmitPayment;
 
@@ -42,6 +44,7 @@ public class PaymentInfoActivity extends AppCompatActivity {
 
         initViews();
         getDataFromIntent();
+        loadUserProfile(); // Gọi hàm tải thông tin người dùng ở đây
     }
 
     private void initViews() {
@@ -51,6 +54,11 @@ public class PaymentInfoActivity extends AppCompatActivity {
         tvRoomName = findViewById(R.id.tvRoomName);
         tvSeatsSelected = findViewById(R.id.tvSeatsSelected);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
+
+        // Ánh xạ View thông tin người nhận từ XML
+        tvUserName = findViewById(R.id.tvUserName);
+        tvUserContact = findViewById(R.id.tvUserContact);
+
         btnBack = findViewById(R.id.btnBack);
         btnSubmitPayment = findViewById(R.id.btnSubmitPayment);
 
@@ -58,9 +66,44 @@ public class PaymentInfoActivity extends AppCompatActivity {
         btnSubmitPayment.setOnClickListener(v -> showMockPaymentDialog());
     }
 
+    // Hàm lấy dữ liệu người dùng đang đăng nhập từ Firestore
+    private void loadUserProfile() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            tvUserName.setText("Chưa đăng nhập");
+            tvUserContact.setText("-");
+            return;
+        }
+
+        String uid = currentUser.getUid();
+
+        // Truy vấn vào bảng "users", document có ID trùng với UID tài khoản
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Lấy các trường dữ liệu dựa theo key đã lưu trên Firestore
+                        String fullName = documentSnapshot.getString("fullName");
+                        String phone = documentSnapshot.getString("phone");
+                        String email = documentSnapshot.getString("email");
+
+                        // Hiển thị lên giao diện (Nếu null thì dùng giá trị mặc định)
+                        tvUserName.setText(fullName != null ? fullName : "Người dùng");
+
+                        String contactText = (phone != null ? phone : "") + " - " + (email != null ? email : "");
+                        tvUserContact.setText(contactText);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Không thể tải thông tin người nhận!", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void getDataFromIntent() {
         Intent intent = getIntent();
         if (intent != null) {
+            String roomName = intent.getStringExtra("ROOM_NAME");
+
+            Toast.makeText(this, "ROOM = " + roomName, Toast.LENGTH_LONG).show();
             showtimeId = intent.getStringExtra("SHOWTIME_ID");
             seatsListString = intent.getStringExtra("SEATS_LIST");
 
@@ -93,7 +136,6 @@ public class PaymentInfoActivity extends AppCompatActivity {
     }
 
     private void saveBookedSeatsToFirebase() {
-        // 1. Kiểm tra tài khoản người dùng đăng nhập thực tế
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(this, "Vui lòng đăng nhập để thực hiện thanh toán!", Toast.LENGTH_SHORT).show();
@@ -109,7 +151,6 @@ public class PaymentInfoActivity extends AppCompatActivity {
         String newBookingId = "booking_" + System.currentTimeMillis();
         WriteBatch batch = db.batch();
 
-        // 2. Cập nhật trạng thái ghế trong Showtimes sang "booked"
         String[] seatsArray = seatsListString.split(", ");
         for (String seatName : seatsArray) {
             String seatNameClean = seatName.trim();
@@ -126,14 +167,12 @@ public class PaymentInfoActivity extends AppCompatActivity {
                     seatData, com.google.firebase.firestore.SetOptions.merge());
         }
 
-        // 3. Đóng gói bản ghi hóa đơn thật lưu vào collection "bookings"
         Map<String, Object> bookingData = new HashMap<>();
         bookingData.put("bookingId", newBookingId);
         bookingData.put("movieTitle", tvMovieTitle.getText().toString());
         bookingData.put("room", tvRoomName.getText().toString());
         bookingData.put("status", "booked");
 
-        // Chuyển hoàn toàn sang kiểu Số (Int) trước khi gửi lên Firebase
         String rawPrice = tvTotalPrice.getText().toString();
         String cleanPrice = rawPrice.replace("đ", "")
                 .replaceAll("[.,]", "")
@@ -149,17 +188,15 @@ public class PaymentInfoActivity extends AppCompatActivity {
         bookingData.put("userId", currentUserId);
 
         String fullShowTimeText = tvShowTime.getText().toString();
-        String extractedStartTime = "18:36"; // Giá trị phòng hờ
-        String extractedDate = "2026-05-25";      // Giá trị phòng hờ
+        String extractedStartTime = "18:36";
+        String extractedDate = "2026-05-25";
 
         try {
             if (fullShowTimeText.contains("|")) {
-                // Tách phần giờ ("20:05 ~ 22:07") và phần ngày ("2026/05/29")
                 String[] parts = fullShowTimeText.split("\\|");
                 String timePart = parts[0].trim();
-                extractedDate = parts[1].trim().replace("/", "-"); // Đổi định dạng xuyệt sang gạch ngang nếu cần
+                extractedDate = parts[1].trim().replace("/", "-");
 
-                // Lấy giờ bắt đầu trước ký tự dấu ngã "~"
                 if (timePart.contains("~")) {
                     extractedStartTime = timePart.split("~")[0].trim();
                 } else if (timePart.contains("-")) {
@@ -179,7 +216,6 @@ public class PaymentInfoActivity extends AppCompatActivity {
         bookingData.put("startTime", extractedStartTime);
         bookingData.put("date", extractedDate);
 
-        //Tạo và lưu trường dữ liệu Ngày đặt vé thực tế hệ thống
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         String currentBookingDate = sdf.format(new Date());
         bookingData.put("bookingDate", currentBookingDate);
@@ -189,12 +225,10 @@ public class PaymentInfoActivity extends AppCompatActivity {
 
         batch.set(db.collection("bookings").document(newBookingId), bookingData);
 
-        // 4. Thực thi Batch đẩy đồng thời lên Cloud
         batch.commit()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Đặt vé thành công!", Toast.LENGTH_SHORT).show();
 
-                    // Điều hướng quay về màn hình chính
                     Intent intent = new Intent(PaymentInfoActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);

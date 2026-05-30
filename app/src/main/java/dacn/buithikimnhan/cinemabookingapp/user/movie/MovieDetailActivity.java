@@ -179,6 +179,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                     + " | " + selectedShowtime.getDate() + " | 2D Phụ đề";
             seatIntent.putExtra("SHOWTIME_INFO", detailInfo);
 
+            seatIntent.putExtra("ROOM_NAME", selectedShowtime.getRoom());
+
             startActivity(seatIntent);
         });
     }

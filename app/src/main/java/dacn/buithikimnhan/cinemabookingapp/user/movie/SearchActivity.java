@@ -60,7 +60,6 @@ public class SearchActivity extends AppCompatActivity {
 
         // 3. Sự kiện xử lý nút Hủy - Quay lại màn hình Trang Chủ (Đã sửa lỗi gọi Adapter)
         tvCancel.setOnClickListener(v -> {
-            // Đã sửa đổi: Thay thế HomeMainAdapter thành MainActivity (hoặc HomeActivity tùy dự án của bạn)
             android.content.Intent intent = new android.content.Intent(SearchActivity.this, MainActivity.class);
             intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);

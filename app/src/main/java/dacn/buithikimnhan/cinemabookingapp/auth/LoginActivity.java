@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView tvRegister;
 
     FirebaseAuth mAuth;
-    FirebaseFirestore db; // Khai báo thêm Firestore để đọc thông tin User
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
