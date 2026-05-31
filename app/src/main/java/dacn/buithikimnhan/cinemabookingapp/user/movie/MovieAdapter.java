@@ -15,9 +15,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
+import java.util.Locale;
 
 import dacn.buithikimnhan.cinemabookingapp.R;
 import dacn.buithikimnhan.cinemabookingapp.data.Movie;
+import dacn.buithikimnhan.cinemabookingapp.user.movie.MovieDetailActivity;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
@@ -42,16 +44,28 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         Movie movie = movieList.get(position);
 
         holder.tvTitle.setText(movie.getTitle() != null ? movie.getTitle() : "Chưa có tên");
-        holder.tvGenre.setText(movie.getGenre() != null ? movie.getGenre() : "Thế loại");
+        holder.tvGenre.setText(movie.getGenre() != null ? movie.getGenre() : "Thể loại");
 
+        double avgRating = movie.getAverageRating();
+        if (avgRating > 0) {
+            holder.tvRating.setText(String.format(Locale.getDefault(), "⭐ %.1f/5", avgRating));
+        } else {
+            holder.tvRating.setText("⭐ 0.0/5");
+        }
+        holder.tvRating.setVisibility(View.VISIBLE);
+
+        // Tải ảnh Poster phim
         Glide.with(holder.itemView.getContext())
                 .load(movie.getPosterUrl())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .error(android.R.drawable.ic_delete)
                 .into(holder.imgPoster);
+
+
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MovieDetailActivity.class);
+            intent.putExtra("CHOSEN_MOVIE", movie);
             intent.putExtra("movieId", movie.getMovieId());
             context.startActivity(intent);
         });
@@ -64,13 +78,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     static class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView imgPoster;
-        TextView tvTitle, tvGenre;
+        TextView tvTitle, tvGenre, tvRating;
 
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
             imgPoster = itemView.findViewById(R.id.imgMoviePoster);
             tvTitle = itemView.findViewById(R.id.txtMovieTitle);
             tvGenre = itemView.findViewById(R.id.txtMovieSubtitle);
+            tvRating = itemView.findViewById(R.id.txtRating);
         }
     }
 }

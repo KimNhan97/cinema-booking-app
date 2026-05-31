@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -77,6 +76,9 @@ public class AdminBookingFragment extends Fragment {
         setupRecyclerView();
         setupTabFilters();
         listenToDataRealtime();
+
+        // Khởi tạo trạng thái mặc định ban đầu cho tab "Tất cả"
+        updateTabSelection("Tất cả", tabAll);
 
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -200,34 +202,10 @@ public class AdminBookingFragment extends Fragment {
 
         TextView[] tabs = {tabAll, tabBooked, tabCheckIn, tabCancelled};
         for (TextView tab : tabs) {
-            tab.setTextColor(android.graphics.Color.parseColor("#424242"));
-
-            android.graphics.drawable.GradientDrawable normalShape = new android.graphics.drawable.GradientDrawable();
-            normalShape.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-            normalShape.setCornerRadius(dpToPx(8));
-            normalShape.setColor(ContextCompat.getColor(requireContext(), android.R.color.white));
-            normalShape.setStroke(2, ContextCompat.getColor(requireContext(), android.R.color.darker_gray));
-            tab.setBackground(normalShape);
-
-            tab.setPadding(dpToPx(14), dpToPx(8), dpToPx(14), dpToPx(8));
+            tab.setSelected(tab == selectedTab);
         }
-        selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-
-        android.graphics.drawable.GradientDrawable activeShape = new android.graphics.drawable.GradientDrawable();
-        activeShape.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-        activeShape.setCornerRadius(dpToPx(8));
-        activeShape.setColor(0xFFA62B2B);
-
-        selectedTab.setBackground(activeShape);
-        selectedTab.setPadding(dpToPx(14), dpToPx(8), dpToPx(14), dpToPx(8));
 
         applyFiltersAndSort();
-    }
-
-    private int dpToPx(int dp) {
-        if (getContext() == null) return dp;
-        float density = getContext().getResources().getDisplayMetrics().density;
-        return Math.round((float) dp * density);
     }
 
     private void listenToDataRealtime() {
