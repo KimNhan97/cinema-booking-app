@@ -37,7 +37,6 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
 
     public HomeFragment() {
-        // Required empty public constructor
     }
 
     @Nullable
@@ -48,16 +47,12 @@ public class HomeFragment extends Fragment {
         rvHomeMain = view.findViewById(R.id.rvHomeMain);
         db = FirebaseFirestore.getInstance();
 
-        // 1. Khởi tạo adapter gộp chung duy nhất
         mainAdapter = new HomeMainAdapter(requireContext(), bannerList, nowShowingList);
 
-        // 2. Cấu hình lưới 2 cột thông minh bằng GridLayoutManager
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                // Nếu là vị trí 0 (Header/Banner Slider) -> cho chiếm trọn cả 2 cột chiều rộng
-                // Nếu là các vị trí sau (Phim) -> cho chiếm 1 cột (tự động chia đôi màn hình)
                 return position == 0 ? 2 : 1;
             }
         });
@@ -65,7 +60,6 @@ public class HomeFragment extends Fragment {
         rvHomeMain.setLayoutManager(layoutManager);
         rvHomeMain.setAdapter(mainAdapter);
 
-        // 3. Tải và xử lý sắp xếp dữ liệu phim theo Review Rating thực tế hệ 5/5
         loadMoviesWithRatingOrder();
 
         return view;
@@ -79,7 +73,6 @@ public class HomeFragment extends Fragment {
                         return;
                     }
 
-                    // Map lưu trữ thống kê: movieId -> [Tổng số điểm sao tích lũy, Số lượt review]
                     Map<String, double[]> reviewStatsMap = new HashMap<>();
 
                     if (reviewSnapshots != null) {
@@ -95,8 +88,8 @@ public class HomeFragment extends Fragment {
                                     }
                                     double[] stats = reviewStatsMap.get(mId);
                                     if (stats != null) {
-                                        stats[0] += ratingValue; // Cộng dồn tổng số điểm sao
-                                        stats[1] += 1.0;         // Tăng số lượng lượt nhận xét
+                                        stats[0] += ratingValue;
+                                        stats[1] += 1.0;
                                     }
                                 }
                             } catch (Exception e) {
@@ -105,7 +98,6 @@ public class HomeFragment extends Fragment {
                         }
                     }
 
-                    // Lấy dữ liệu danh sách phim từ Firestore
                     db.collection("movies")
                             .addSnapshotListener((movieSnapshots, movieError) -> {
                                 if (movieError != null) {
@@ -120,10 +112,13 @@ public class HomeFragment extends Fragment {
                                     for (QueryDocumentSnapshot document : movieSnapshots) {
                                         Movie movie = document.toObject(Movie.class);
 
-                                        // Gán ID của Document từ Firestore vào thuộc tính movieId ngay lập tức!
-                                        movie.setMovieId(document.getId());
+                                        String dbMovieId = document.getString("movieId");
+                                        if (dbMovieId != null && !dbMovieId.isEmpty()) {
+                                            movie.setMovieId(dbMovieId);
+                                        } else {
+                                            movie.setMovieId(document.getId());
+                                        }
 
-                                        // Đối chiếu và tính toán số điểm sao trung bình thực tế từ bảng Reviews
                                         if (reviewStatsMap.containsKey(movie.getMovieId())) {
                                             double[] stats = reviewStatsMap.get(movie.getMovieId());
                                             if (stats != null && stats[1] > 0) {
@@ -131,7 +126,6 @@ public class HomeFragment extends Fragment {
                                                 long ratingCount = (long) stats[1];
 
                                                 double rawAvg = totalRatingStars / ratingCount;
-                                                // Làm tròn toán học lấy 1 chữ số thập phân chuẩn hệ 5/5
                                                 double roundedAvg = Math.round(rawAvg * 10.0) / 10.0;
 
                                                 movie.setAverageRating(roundedAvg);
@@ -139,7 +133,6 @@ public class HomeFragment extends Fragment {
                                                 movie.setRatingCount((int) ratingCount);
                                             }
                                         } else {
-                                            // Trường hợp chưa có lượt đánh giá nào
                                             movie.setAverageRating(0.0);
                                             movie.setTotalRating(0.0);
                                             movie.setRatingCount(0);
@@ -147,27 +140,19 @@ public class HomeFragment extends Fragment {
 
                                         String status = movie.getStatus();
 
-                                        // Phim thỏa mãn điều kiện làm Banner (được sao chép đối tượng nguyên vẹn kèm ID)
                                         if ("now_showing".equals(status) || "soon_showing".equals(status)) {
                                             bannerList.add(movie);
                                         }
 
-                                        // Phim hiển thị ở danh sách lưới phía dưới
                                         if ("now_showing".equals(status)) {
                                             nowShowingList.add(movie);
                                         }
                                     }
 
-                                    // Thuật toán sắp xếp giảm dần theo điểm đánh giá trung bình hệ 5/5 chuẩn xác
                                     Collections.sort(nowShowingList, (m1, m2) -> Double.compare(m2.getAverageRating(), m1.getAverageRating()));
                                     Collections.sort(bannerList, (m1, m2) -> Double.compare(m2.getAverageRating(), m1.getAverageRating()));
 
-                                    // Làm mới dữ liệu lên Adapter chính để cập nhật cả lưới phim và banner lướt tự động
                                     mainAdapter.notifyDataSetChanged();
-                                    // Làm mới dữ liệu lên Adapter chính để cập nhật cả lưới phim và banner lướt tự động
-                                    mainAdapter.notifyDataSetChanged();
-
-                                    // KÍCH HOẠT LẠI SLIDER TỰ ĐỘNG SAU KHI DỮ LIỆU ĐÃ TẢI XONG TỪ FIREBASE
                                     mainAdapter.startSlider();
                                 }
                             });
@@ -178,7 +163,7 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (mainAdapter != null) {
-            mainAdapter.stopSlider(); // Giải phóng luồng chạy ngầm của ViewPager Banner khi chuyển màn hình
+            mainAdapter.stopSlider();
         }
     }
 }

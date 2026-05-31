@@ -70,12 +70,10 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        // ================= HEADER =================
         if (holder instanceof HeaderViewHolder) {
             HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
             activeViewPager = headerHolder.bannerViewPager;
 
-            // ================= USER INFO =================
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
                 headerHolder.tvUserEmail.setText(user.getEmail());
@@ -86,25 +84,17 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
 
-            // Tìm kiếm
             headerHolder.layoutSearch.setOnClickListener(v -> {
                 Intent intent = new Intent(context, SearchActivity.class);
                 context.startActivity(intent);
             });
 
-            // Banner Slider Setup
-            if (headerHolder.bannerViewPager.getAdapter() == null) {
-                BannerAdapter bannerAdapter = new BannerAdapter(context, bannerMovies);
-                headerHolder.bannerViewPager.setAdapter(bannerAdapter);
-            } else {
-                headerHolder.bannerViewPager.getAdapter().notifyDataSetChanged();
-            }
+            BannerAdapter bannerAdapter = new BannerAdapter(context, bannerMovies);
+            headerHolder.bannerViewPager.setAdapter(bannerAdapter);
 
-            // Gọi hàm kích hoạt tự động lướt mỗi khi bind dữ liệu Header
             startSliderInner();
         }
 
-        // ================= MOVIE GRID (DANH SÁCH PHIM) =================
         else if (holder instanceof MovieViewHolder) {
             Movie movie = gridMovies.get(position - 1);
             MovieViewHolder movieHolder = (MovieViewHolder) holder;
@@ -113,12 +103,11 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             movieHolder.txtMovieSubtitle.setText(movie.getGenre() + " • " + movie.getDuration() + " phút");
 
             Glide.with(context)
-                    .load(movie.getBannerUrl())
+                    .load(movie.getPosterUrl())
                     .placeholder(R.drawable.movie_test)
                     .error(R.drawable.movie_test)
                     .into(movieHolder.imgMoviePoster);
 
-            // Bổ sung hiển thị số sao
             double avgRating = movie.getAverageRating();
             if (avgRating > 0) {
                 movieHolder.txtRating.setText(String.format(Locale.getDefault(), "⭐ %.1f/5", avgRating));
@@ -130,14 +119,14 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             movieHolder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, MovieDetailActivity.class);
                 intent.putExtra("CHOSEN_MOVIE", movie);
+                intent.putExtra("movieId", movie.getMovieId());
                 context.startActivity(intent);
             });
         }
     }
 
-    // Hàm khởi chạy hiệu ứng lướt tự động sang trái (vòng lặp vô tận)
     private void startSliderInner() {
-        stopSlider(); // Xóa lịch trình cũ trước khi tạo vòng lặp mới nhằm tránh xung đột trùng lặp luồng
+        stopSlider();
 
         if (bannerMovies == null || bannerMovies.size() <= 1 || activeViewPager == null) {
             return;
@@ -150,11 +139,11 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 int nextItem = activeViewPager.getCurrentItem() + 1;
                 if (nextItem >= bannerMovies.size()) {
-                    nextItem = 0; // Quay về banner đầu tiên nếu lướt hết danh sách
+                    nextItem = 0;
                 }
 
                 activeViewPager.setCurrentItem(nextItem, true);
-                sliderHandler.postDelayed(this, 3000); // Lặp lại sau mỗi 3 giây
+                sliderHandler.postDelayed(this, 3000);
             }
         };
 
@@ -175,7 +164,6 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         startSliderInner();
     }
 
-    // ================= HEADER VIEW HOLDER =================
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvUserEmail;
         ViewPager2 bannerViewPager;
@@ -190,7 +178,6 @@ public class HomeMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    // ================= MOVIE VIEW HOLDER =================
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView imgMoviePoster;
         TextView txtMovieTitle, txtMovieSubtitle, txtRating;

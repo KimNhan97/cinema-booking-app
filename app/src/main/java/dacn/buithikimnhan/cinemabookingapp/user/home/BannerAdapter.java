@@ -6,12 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView; // Đã thêm import TextView
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -40,28 +41,23 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
     public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
         Movie movie = movieList.get(position);
 
-        // Load ảnh banner bằng Glide
         Glide.with(context)
                 .load(movie.getBannerUrl())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.movie_test)
                 .error(R.drawable.movie_test)
                 .into(holder.imgBanner);
 
-        // Tiêu đề phim
-        holder.txtTitle.setText(movie.getTitle());
-
-        // Subtitle (Thể loại • Thời lượng)
+        holder.txtTitle.setText(movie.getTitle() != null ? movie.getTitle() : "");
         holder.txtSubtitle.setText(movie.getGenre() + " • " + movie.getDuration() + " phút");
 
-        // Click vào toàn bộ Item Banner
         holder.itemView.setOnClickListener(v -> navigateToDetail(movie));
-
-        // Click vào nút Đặt vé ngay
         holder.btnBookNow.setOnClickListener(v -> navigateToDetail(movie));
     }
 
     private void navigateToDetail(Movie movie) {
         Intent intent = new Intent(context, MovieDetailActivity.class);
+        intent.putExtra("CHOSEN_MOVIE", movie);
         intent.putExtra("movieId", movie.getMovieId());
         context.startActivity(intent);
     }
